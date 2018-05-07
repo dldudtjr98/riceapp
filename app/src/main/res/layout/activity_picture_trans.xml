@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.dldud.riceapp.PictureTransActivity">
+
+    <EditText
+        android:id="@+id/picContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="간단한 설명을 입력해주세요"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="350dp">
+
+        <Button
+            android:id="@+id/dot"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center"
+            android:background="@drawable/ic_lens_crimson_24dp" />
+
+        <RelativeLayout
+            android:id="@+id/picMapFix"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            tools:layout_editor_absoluteX="10dp"
+            tools:layout_editor_absoluteY="577dp">
+
+        </RelativeLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioGroup
+            android:id="@+id/filterPicGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/food"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="food"
+                    android:background="@drawable/food"/>
+                <RadioButton
+                    android:id="@+id/date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/date"/>
+                <RadioButton
+                    android:id="@+id/music"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/music"/>
+                <RadioButton
+                    android:id="@+id/shopping"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/shopping"/>
+                <RadioButton
+                    android:id="@+id/cafe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/cafe"/>
+
+                <RadioButton
+                    android:id="@+id/play"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/play"/>
+                <RadioButton
+                    android:id="@+id/landscape"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/landscape"/>
+                <RadioButton
+                    android:id="@+id/peoplePlus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/people_plus"/>
+                <RadioButton
+                    android:id="@+id/alcohol"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/alcohol"/>
+                <RadioButton
+                    android:id="@+id/cinema"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/cinema"/>
+                <RadioButton
+                    android:id="@+id/street"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/street"/>
+        </RadioGroup>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/picCancelBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="취소"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/picSendBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="확인"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </LinearLayout>
+
+</LinearLayout>

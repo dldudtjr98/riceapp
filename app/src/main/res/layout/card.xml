@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/DynamicConstraint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:color="#696969">
+
+        <TextView
+            android:id="@+id/shareText"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="50dp"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            app:layout_constraintStart_toEndOf="@+id/replyText"
+            app:layout_constraintTop_toBottomOf="@+id/contentText" />
+
+    <TextView
+        android:id="@+id/replyText"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="50dp"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toEndOf="@+id/likeText"
+        app:layout_constraintTop_toBottomOf="@+id/contentText" />
+
+    <TextView
+        android:id="@+id/likeCnt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/likeText" />
+
+    <TextView
+        android:id="@+id/likeText"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/contentText" />
+
+    <Button
+        android:id="@+id/mapButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="50dp"
+        android:background="@drawable/ic_location_on_white_24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/shareText"
+        app:layout_constraintTop_toBottomOf="@+id/contentText"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/contentText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bannerImage" />
+
+    <ImageView
+        android:id="@+id/bannerImage"
+        android:layout_width="350dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="8dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/userImage" />
+
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/userImage"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/profile"
+        app:civ_border_color="#FFffffff"
+        app:civ_border_width="1dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/userIdText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:text="홍길동동동"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toTopOf="@+id/bannerImage"
+            app:layout_constraintStart_toEndOf="@+id/userImage" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_centerInParent="true"
+        android:background="#FFFFFF"/>
+
+
+</android.support.constraint.ConstraintLayout>
