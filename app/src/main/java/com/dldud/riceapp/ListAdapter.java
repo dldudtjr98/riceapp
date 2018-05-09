@@ -95,10 +95,10 @@ public class ListAdapter extends BaseAdapter {
 
         detailImage = (ImageView) ((Activity)context).findViewById(R.id.detailImage);
         wv = (WebView) ((Activity)context).findViewById(R.id.seeDetailView);
-        mvContainer = (ViewGroup)((Activity)context).findViewById(R.id.feedMap);
+        //mvContainer = (ViewGroup)((Activity)context).findViewById(R.id.feedMap);
         viewClose = (Button)((Activity)context).findViewById(R.id.wvCloseBtn);
         imgClose = (Button)((Activity)context).findViewById(R.id.imgCloseBtn);
-        mapClose = (Button)((Activity)context).findViewById(R.id.mapCloseBtn);
+        //mapClose = (Button)((Activity)context).findViewById(R.id.mapCloseBtn);
 
         if(convertView == null){
             if(inflater == null){
@@ -180,7 +180,7 @@ public class ListAdapter extends BaseAdapter {
                 imgClose.setVisibility(View.GONE);
             }
         });
-
+/*
         mapClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,7 +190,8 @@ public class ListAdapter extends BaseAdapter {
 
             }
         });
-
+*/
+/*
         holder.oButtonMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -211,7 +212,7 @@ public class ListAdapter extends BaseAdapter {
                 mv.addPOIItem(customMarker);
             }
         });
-
+*/
         return convertView;
     }
 
