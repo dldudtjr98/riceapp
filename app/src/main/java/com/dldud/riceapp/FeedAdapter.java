@@ -3,11 +3,15 @@ package com.dldud.riceapp;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,8 +30,8 @@ import java.util.ArrayList;
 public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
     Context context;
-    private MapView mv;
     private ArrayList<ItemData> items = new ArrayList<>();
+    private RecyclerView recyclerView;
 
     public FeedAdapter(Context context, ArrayList<ItemData> items){
         this.context = context;
@@ -46,21 +50,22 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         return new ViewHolder(convertView);
     }
 
+
+
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
 
         final ItemData item = items.get(position);
         final WebView wv;
         final ImageView detailImage;
-        final ViewGroup mvContainer;
-        final Button viewClose,imgClose,mapClose;
+        final Button viewClose,imgClose;
+        final Animation animScaleAlpha = AnimationUtils.loadAnimation(context,R.anim.anim_scale_alpha);
 
+        recyclerView = (RecyclerView) ((Activity)context).findViewById(R.id.dynamicLayout);
         detailImage = (ImageView) ((Activity)context).findViewById(R.id.detailImage);
         wv = (WebView) ((Activity)context).findViewById(R.id.seeDetailView);
-        mvContainer = (ViewGroup)((Activity)context).findViewById(R.id.feedMap);
         viewClose = (Button)((Activity)context).findViewById(R.id.wvCloseBtn);
         imgClose = (Button)((Activity)context).findViewById(R.id.imgCloseBtn);
-        mapClose = (Button)((Activity)context).findViewById(R.id.mapCloseBtn);
 
 
         holder.oTextLike.setText(item.getStrLike());
@@ -104,35 +109,48 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             }
         });
 
-        mapClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mv.setVisibility(View.GONE);
-                mvContainer.setVisibility(View.GONE);
-                mapClose.setVisibility(View.GONE);
-
-            }
-        });
-
         holder.oButtonMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mv = new MapView(context);
-                mv.setVisibility(View.VISIBLE);
-                mvContainer.setVisibility(View.VISIBLE);
-                mapClose.setVisibility(View.VISIBLE);
-                mvContainer.addView(mv);
-                mv.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()),1, true);
-                mv.removeAllPOIItems();
-                MapPOIItem customMarker = new MapPOIItem();
-                customMarker.setItemName("여기!");
-                customMarker.setTag(1);
-                customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()));
-                customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-                customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
-                customMarker.setCustomImageResourceId(R.drawable.marker_red);
-                customMarker.setShowCalloutBalloonOnTouch(false);
-                mv.addPOIItem(customMarker);
+            holder.oFeedMap.setVisibility(View.VISIBLE);
+            holder.oMap = new MapView(context);
+            holder.oMap.setVisibility(View.VISIBLE);
+            holder.oMapContainer.setVisibility(View.VISIBLE);
+            holder.oMapContainer.addView(holder.oMap);
+            holder.oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(),item.getDouLongitude()),1,true);
+            holder.oMap.removeAllPOIItems();
+            MapPOIItem customMarker = new MapPOIItem();
+            customMarker.setItemName("here");
+            customMarker.setTag(1);
+            customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(),item.getDouLongitude()));
+            customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+            customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+            customMarker.setCustomImageResourceId(R.drawable.marker_red);
+            customMarker.setShowCalloutBalloonOnTouch(false);
+            holder.oMap.addPOIItem(customMarker);
+            }
+        });
+
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0 && holder.oFeedMap.getVisibility() == View.VISIBLE) {
+                    // Scrolling up
+                    holder.oMap.startAnimation(animScaleAlpha);
+                    holder.oFeedMap.setVisibility(View.GONE);
+                    holder.oMapContainer.setVisibility(View.GONE);
+                    holder.oMap.setVisibility(View.GONE);
+
+                } else if (dy <0 && holder.oFeedMap.getVisibility() == View.VISIBLE){
+                    // Scrolling down
+                    holder.oMap.startAnimation(animScaleAlpha);
+                    holder.oFeedMap.setVisibility(View.GONE);
+                    holder.oMapContainer.setVisibility(View.GONE);
+                    holder.oMap.setVisibility(View.GONE);
+
+                }
             }
         });
 
@@ -156,7 +174,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         return items.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    static class ViewHolder extends RecyclerView.ViewHolder{
         private TextView oTextLike;
         private TextView oTextShare;
         private TextView oTextReply;
@@ -165,9 +183,11 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         private Button oButtonMap;
         private ImageView oImageBanner;
         private ImageView oImageUser;
+        private FrameLayout oFeedMap;
+        private ViewGroup oMapContainer;
+        private MapView oMap;
 
-
-        public ViewHolder(View v) {
+        ViewHolder(View v) {
             super(v);
             oImageBanner = (ImageView)v.findViewById(R.id.bannerImage);
             oImageUser = (ImageView)v.findViewById(R.id.userImage);
@@ -177,6 +197,9 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             oTextReply = (TextView)v.findViewById(R.id.replyText);
             oTextUserId = (TextView)v.findViewById(R.id.userIdText);
             oTextContent = (TextView)v.findViewById(R.id.contentText);
+            oFeedMap = (FrameLayout)v.findViewById(R.id.mapFrame);
+            oMapContainer = (ViewGroup)v.findViewById(R.id.mapFeed);
+
         }
     }
 }
