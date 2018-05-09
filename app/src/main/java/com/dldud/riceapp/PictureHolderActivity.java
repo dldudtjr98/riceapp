@@ -20,7 +20,7 @@ public class PictureHolderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_picture_holder);
 
-        File imgFile = new File("/storage/emulated/0/RICE/" + picturefilename + ".jpg");
+        File imgFile = new File("/storage/emulated/0/LIS/" + picturefilename + ".jpg");
         ImageView iv = (ImageView) findViewById(R.id.bannerImage);
         Button cancel = (Button) findViewById(R.id.videoCancel);
         Button ok = (Button)findViewById(R.id.pictureOk);
