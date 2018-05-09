@@ -52,7 +52,7 @@ public class VideoHolderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_holder);
 
-        String videopath = "/storage/emulated/0/RICE/" + videofilename + ".mp4";
+        String videopath = "/storage/emulated/0/LIS/" + videofilename + ".mp4";
         File videoFile = new File(videopath);
 
         final VideoView vv = (VideoView) findViewById(R.id.videoView1);
