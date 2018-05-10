@@ -62,6 +62,8 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
             e.printStackTrace();
         }
 
+        MapReverseGeoCoder reverseGeoCoder = null;
+
         if (task.idx != null && !task.idx.isEmpty()) {
             String[] strlocationlat = task.locationlat.toArray(new String[task.locationlat.size()]);
             String[] strlocationlong = task.locationlong.toArray(new String[task.locationlong.size()]);
@@ -79,6 +81,13 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
                 customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
                 customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
                 customMarker.setCustomImageResourceId(R.drawable.marker_red);
+
+
+                reverseGeoCoder = new MapReverseGeoCoder("LOCAL_API_KEY",
+                        MapPoint.mapPointWithGeoCoord(locationlat[i], locationlong[i]),
+                        this,
+                        this.getActivity());
+
 
                 mapView.addPOIItem(customMarker);
             }
@@ -196,12 +205,12 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
     }
 
     @Override
-    public void onReverseGeoCoderFoundAddress(MapReverseGeoCoder mapReverseGeoCoder, String s) {
-
+    public void onReverseGeoCoderFoundAddress(MapReverseGeoCoder mapReverseGeoCoder, String s) { // 주소 찾은 경우
+        //mapReverseGeoCoder.onAddressFound();
     }
 
     @Override
-    public void onReverseGeoCoderFailedToFindAddress(MapReverseGeoCoder mapReverseGeoCoder) {
+    public void onReverseGeoCoderFailedToFindAddress(MapReverseGeoCoder mapReverseGeoCoder) { // 주소를 찾지 못한 경우
 
     }
 
