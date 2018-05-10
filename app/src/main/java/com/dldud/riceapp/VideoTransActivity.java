@@ -43,7 +43,7 @@ public class VideoTransActivity extends AppCompatActivity {
     String upLoadServerUri = null;
     final String insertUrlPath = "http://52.78.18.156/public/Data_insert.php";
     final String urlPath = "http://52.78.18.156/public/ping_db.php";
-    final String uploadFilePath = "storage/emulated/0/RICE/";
+    final String uploadFilePath = "storage/emulated/0/LIS/";
     final String uploadFileNameVideo = videofilename + ".mp4";
     final String uploadFileNameThumbnail = videofilename + ".jpg";
     String filter;
@@ -68,11 +68,11 @@ public class VideoTransActivity extends AppCompatActivity {
 
         NetworkUtil.setNetworkPolicy();
 
-        final String thumbnailpath = "/storage/emulated/0/RICE/" + videofilename + ".jpg";
+        final String thumbnailpath = "/storage/emulated/0/LIS/" + videofilename + ".jpg";
 
         setText = (EditText)findViewById(R.id.vidContent);
 
-        rg = (RadioGroup)findViewById(R.id.filterPicGroup);
+        rg = (RadioGroup)findViewById(R.id.filterVidGroup);
 
         Button cancel = (Button) findViewById(R.id.vidCancelBtn);
         cancel.setOnClickListener(cancelTrans);

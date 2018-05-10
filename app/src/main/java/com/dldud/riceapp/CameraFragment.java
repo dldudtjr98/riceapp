@@ -61,6 +61,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
 
     private String[] permissions = {
             Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
@@ -74,6 +76,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
     private Button recordBtn;
     private Button gotoFeed;
     private Button gotoMap;
+    private String folderPath;
 
 
     public CameraFragment() {
@@ -90,6 +93,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
         }
 
 
+        folderPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         sv = (SurfaceView) v.findViewById(R.id.surface);
         sh = sv.getHolder();
         sh.addCallback(this);
@@ -112,7 +116,6 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
         });
 
         LayoutInflater layoutInflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View mainView = layoutInflater.inflate(R.layout.activity_main,null);
 
         recordBtn = (Button) viewControl.findViewById(R.id.recordBtn);
         recordBtn.setOnClickListener(videoListener);
@@ -145,7 +148,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
     View.OnClickListener captureListener = new View.OnClickListener(){
         @Override
         public void onClick(View v) {
-            picturefilename = "rice_capture_" + GetRandName();
+            picturefilename = "lis_capture_" + GetRandName();
             camera.takePicture(myShutterCallback, myPictureCallback_RAW, myPictureCallback_JPG);
         }
     };
@@ -154,8 +157,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
         public boolean onLongClick(View v) {
             captureBtn.setVisibility(View.GONE);
             recordBtn.setVisibility(View.VISIBLE);
-            videofilename= "rice_video_" + GetRandName();
-            final String mp4Route = "/storage/emulated/0/RICE/" + videofilename + ".mp4";
+            videofilename= "lis_video_" + GetRandName();
+            final String mp4Route = "/storage/emulated/0/LIS/" + videofilename + ".mp4";
 
             getActivity().runOnUiThread(new Runnable(){
                 @Override
@@ -236,11 +239,10 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
 
 
     private void createFolder(){
-        String title = "RICE";
-        File cameraDir = new File(getContext().getFilesDir(),title);
-        if(!cameraDir.exists()) {
-            cameraDir.mkdirs();
-        }
+        String title = "/LIS";
+        folderPath += title;
+        File cameraDir = new File(folderPath);
+        cameraDir.mkdirs();
     }
 
     Camera.AutoFocusCallback myAutoFocusCallback = new Camera.AutoFocusCallback() {
@@ -271,7 +273,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
         public void onPictureTaken(byte[] data, Camera camera) {
             Bitmap bitmapPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
 
-            String jpgRoute = "/storage/emulated/0/RICE/"+ picturefilename + ".jpg";
+            String jpgRoute = "/storage/emulated/0/lis/"+ picturefilename + ".jpg";
             File copyFile = new File(jpgRoute);
             Matrix matrix = new Matrix();
             matrix.postRotate(90);

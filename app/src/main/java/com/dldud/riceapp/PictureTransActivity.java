@@ -33,7 +33,7 @@ public class PictureTransActivity extends AppCompatActivity {
     String upLoadServerUri = null;
     final String insertUrlPath = "http://52.78.18.156/public/Data_insert.php";
     final String urlPath = "http://52.78.18.156/public/ping_db.php";
-    final String uploadFilePath = "storage/emulated/0/RICE/";
+    final String uploadFilePath = "storage/emulated/0/LIS/";
     final String uploadFileName = picturefilename + ".jpg";
     String filter;
     RadioGroup rg;

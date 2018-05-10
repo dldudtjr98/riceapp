@@ -2,7 +2,6 @@ package com.dldud.riceapp;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,12 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 
-import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
-
-import net.daum.mf.map.api.MapView;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -41,7 +35,6 @@ public class FeedFragment extends Fragment {
 
     WebView wv = null;
     ImageView imgView;
-    ViewGroup mapViewContainer;
 
     public FeedFragment() {
         // Required empty public constructor
@@ -52,11 +45,10 @@ public class FeedFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_feed, container, false);
 
-
-        mapViewContainer = (ViewGroup)v.findViewById(R.id.feedMap);
         recyclerView = (RecyclerView) v.findViewById(R.id.dynamicLayout);
         wv = (WebView) v.findViewById(R.id.seeDetailView);
         imgView = (ImageView) v.findViewById( R.id.detailImage);
+
 
         oData = new ArrayList<>();
 
@@ -117,6 +109,8 @@ public class FeedFragment extends Fragment {
            e.printStackTrace();
         }
 
+
+
         layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
@@ -124,4 +118,5 @@ public class FeedFragment extends Fragment {
         recyclerView.setAdapter(oAdapter);
         return v;
     }
+
 }
