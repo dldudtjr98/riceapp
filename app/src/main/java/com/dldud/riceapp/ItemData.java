@@ -5,6 +5,7 @@ package com.dldud.riceapp;
  */
 
 public class ItemData {
+    public String strIdx;
     public String strLike;
     public String strShare;
     public String strReply;
@@ -19,6 +20,14 @@ public class ItemData {
     public double douLongitude;
 
     //Getters and Setters
+    public String getStrIdx() {
+        return strIdx;
+    }
+
+    public void setStrIdx(String strIdx) {
+        this.strIdx = strIdx;
+    }
+
     public String getStrLike() {
         return strLike;
     }
