@@ -7,6 +7,7 @@ import net.daum.mf.map.api.MapReverseGeoCoder;
  */
 
 public class ItemData {
+    public String strIdx;
     public String strLike;
     public String strShare;
     public String strReply;
@@ -50,6 +51,14 @@ public class ItemData {
     }
 
     //Getters and Setters
+    public String getStrIdx() {
+        return strIdx;
+    }
+
+    public void setStrIdx(String strIdx) {
+        this.strIdx = strIdx;
+    }
+
     public String getStrLike() {
         return strLike;
     }

@@ -1,49 +1,22 @@
 package com.dldud.riceapp;
 
 import android.app.Activity;
-import android.content.ClipData;
-import android.content.ContentValues;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.media.ThumbnailUtils;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
-import net.daum.mf.map.api.MapPOIItem;
-import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.w3c.dom.Text;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import static android.view.View.VISIBLE;
 
@@ -111,7 +84,7 @@ public class ListAdapter extends BaseAdapter {
             holder.oButtonMap = (Button)convertView.findViewById(R.id.mapButton);
             holder.oTextLike = (TextView)convertView.findViewById(R.id.likeText);
             holder.oTextShare = (TextView)convertView.findViewById(R.id.shareText);
-            holder.oTextReply = (TextView)convertView.findViewById(R.id.replyText);
+            holder.oTextReply = (TextView)convertView.findViewById(R.id.replyContent);
             holder.oTextUserId = (TextView)convertView.findViewById(R.id.userIdText);
             holder.oTextLikeCnt = (TextView)convertView.findViewById(R.id.likeCnt);
 

@@ -2,8 +2,8 @@ package com.dldud.riceapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +13,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -22,6 +23,7 @@ import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by dldud on 2018-05-03.
@@ -31,7 +33,15 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
     Context context;
     private ArrayList<ItemData> items = new ArrayList<>();
-    private RecyclerView recyclerView;
+    private ArrayList<ReplyItemData> rData;
+    private LinearLayoutManager layoutManager;
+    private ReplyAdapter rAdapter;
+    private String replyString;
+    private String userString;
+    private TaskReply taskReply = new TaskReply();
+    private TaskUser taskUser = new TaskUser();
+    private String imgUrl = "http://52.78.18.156/data/riceapp/";
+
 
     public FeedAdapter(Context context, ArrayList<ItemData> items){
         this.context = context;
@@ -55,24 +65,100 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
+        final RecyclerView recyclerView;
+        final RecyclerView replyView;
         final ItemData item = items.get(position);
+        rData = new ArrayList<>();
+
         final WebView wv;
         final ImageView detailImage;
         final Button viewClose,imgClose;
         final Animation animScaleAlpha = AnimationUtils.loadAnimation(context,R.anim.anim_scale_alpha);
+        final LinearLayout reply;
 
         recyclerView = (RecyclerView) ((Activity)context).findViewById(R.id.dynamicLayout);
         detailImage = (ImageView) ((Activity)context).findViewById(R.id.detailImage);
         wv = (WebView) ((Activity)context).findViewById(R.id.seeDetailView);
         viewClose = (Button)((Activity)context).findViewById(R.id.wvCloseBtn);
         imgClose = (Button)((Activity)context).findViewById(R.id.imgCloseBtn);
-
+        reply = (LinearLayout)((Activity)context).findViewById(R.id.replyLayout);
+        replyView = (RecyclerView)((Activity)context).findViewById(R.id.replyCard);
 
         holder.oTextLike.setText(item.getStrLike());
         holder.oTextShare.setText(item.getStrShare());
         holder.oTextReply.setText(item.getStrReply());
         holder.oTextUserId.setText(item.getStrUserName());
         holder.oTextContent.setText(item.getStrContent());
+
+
+
+
+
+
+
+
+
+        holder.oTextReply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    replyString = taskReply.execute("http://52.78.18.156/public/comment_db.php").get();
+                    userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
+                    taskUser.jsonParser(userString);
+                    taskReply.jsonParser(replyString);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }catch(ExecutionException e){
+                    e.printStackTrace();
+                }
+
+                String idx;
+                idx = item.getStrIdx();
+
+                String[] replyIdx = taskReply.idx.toArray(new String[taskReply.idx.size()]);
+                String[] replyUser = taskReply.user_idx.toArray(new String[taskReply.user_idx.size()]);
+                String[] replyPing = taskReply.ping_idx.toArray(new String[taskReply.ping_idx.size()]);
+                String[] replyContent = taskReply.content.toArray(new String[taskReply.content.size()]);
+
+                String[] nickname = taskUser.nickname.toArray(new String[taskUser.nickname.size()]);
+                String[] profile = taskUser.profile.toArray(new String[taskUser.profile.size()]);
+                String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
+
+                int replyNum = replyIdx.length;
+                int userLinearNum = userIdx.length;
+
+
+                for(int i = 0; i < replyNum; i++) {
+                    String val = replyPing[i];
+                    if(val.contains(idx)) {
+                        ReplyItemData rItem = new ReplyItemData();
+
+                        String strUserId;
+                        strUserId = replyUser[replyNum - (i + 1)];
+                        rItem.strReplyContent = replyContent[replyNum - (i + 1)];
+
+                        for (int j = 0; j < userLinearNum; j++) {
+                            String val1 = userIdx[j];
+                            if (val1.contains(strUserId)) {
+                                rItem.strReplyUserImage = imgUrl + profile[j];
+                                rItem.strReplyUserName = nickname[j];
+                            }
+                        }
+                        rData.add(rItem);
+                    }
+                }
+
+                layoutManager = new LinearLayoutManager(context);
+                layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                replyView.setLayoutManager(layoutManager);
+                rAdapter = new ReplyAdapter(context,rData);
+                replyView.setAdapter(rAdapter);
+
+                reply.setVisibility(View.VISIBLE);
+                replyView.setVisibility(View.VISIBLE);
+
+            }
+        });
 
         holder.oImageBanner.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,7 +280,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             oButtonMap = (Button)v.findViewById(R.id.mapButton);
             oTextLike = (TextView)v.findViewById(R.id.likeText);
             oTextShare = (TextView)v.findViewById(R.id.shareText);
-            oTextReply = (TextView)v.findViewById(R.id.replyText);
+            oTextReply = (TextView)v.findViewById(R.id.replyContent);
             oTextUserId = (TextView)v.findViewById(R.id.userIdText);
             oTextContent = (TextView)v.findViewById(R.id.contentText);
             oFeedMap = (FrameLayout)v.findViewById(R.id.mapFrame);
