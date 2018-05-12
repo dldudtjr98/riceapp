@@ -2,8 +2,10 @@ package com.dldud.riceapp;
 
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +17,12 @@ import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapReverseGeoCoder;
 import net.daum.mf.map.api.MapView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class MapFragment extends Fragment implements MapView.MapViewEventListener, MapView.POIItemEventListener, MapView.CurrentLocationEventListener, MapReverseGeoCoder.ReverseGeoCodingResultListener{
 
@@ -23,6 +30,10 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
     String myString;
     double latitude, longitude;
     int j;
+
+    private MapView mapView;
+
+    ArrayList<ItemData> itemList = new ArrayList<>();
 
     public MapFragment() {
         // Required empty public constructor
@@ -34,8 +45,9 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
         //GPSTracker class
         GPSInfo gps;
 
+        mapView = new MapView(getActivity());
+
         Button mapDialog, gotoMyPoint;
-        final MapView mapView = new MapView(getActivity());
         final CameraUpdateFactory cameraUpdateFactory = new CameraUpdateFactory();
 
         View v = inflater.inflate(R.layout.fragment_map, container, false);
@@ -83,11 +95,18 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
                 customMarker.setCustomImageResourceId(R.drawable.marker_red);
 
 
-                reverseGeoCoder = new MapReverseGeoCoder("LOCAL_API_KEY",
+                reverseGeoCoder = new MapReverseGeoCoder(getString(R.string.kakao_app_key),
                         MapPoint.mapPointWithGeoCoord(locationlat[i], locationlong[i]),
                         this,
                         this.getActivity());
 
+                reverseGeoCoder.startFindingAddress();
+
+                ItemData newItem = new ItemData();
+                newItem.setReverseGeoCoder(reverseGeoCoder);
+                newItem.setiMarkerIndex(i + 1);
+
+                itemList.add(newItem);
 
                 mapView.addPOIItem(customMarker);
             }
@@ -207,6 +226,43 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
     @Override
     public void onReverseGeoCoderFoundAddress(MapReverseGeoCoder mapReverseGeoCoder, String s) { // 주소 찾은 경우
         //mapReverseGeoCoder.onAddressFound();
+
+
+        Log.e("map", s);
+
+
+        for(ItemData m : itemList)
+        {
+            if(m.getReverseGeoCoder() == mapReverseGeoCoder) { // 현재 탐색중인 m이 현재 이벤트를 발생시킨 MRGC랑 같을 때
+                if (m.getStrAddress() == null) {
+                    m.setStrAddress(s);
+                    //mapView.findPOIItemByTag(m.getiMarkerIndex()).setItemName("set"); // for debug
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    /*
+                    List<ItemData> d = itemList.stream().filter(a -> a.getStrAddress() == s).collect(Collectors.toList());
+                    List<ItemData> d2 = itemList.stream().filter(a -> a.getStrAddress() == s).map(ItemData::new).collect(Collectors.toList());
+                    int itemCount = itemList.stream().filter(a -> a.getStrAddress() == s).collect(Collectors.toList()).size();*/
+                    // 개씨발쓰레기같은좆드로이드스튜디오는씨발자바8문법지원안하니까자바8문법쓸생각도하지마라개씨발좆같은쓰레기새끼들똥이나쳐먹어라씨발
+
+                    int itemCount = 0;
+                    for(ItemData id : itemList)
+                    {
+                        if(s.equals(id.getStrAddress()))
+                            itemCount++;
+
+                        if (itemCount > 1) {
+                            //           mapView.removePOIItem();
+                            mapView.removePOIItem(mapView.findPOIItemByTag(m.getiMarkerIndex())); // 태그로 겹치는 주소의 POIItem 찾아서 마커를 지도에서 지움
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
     }
 
     @Override

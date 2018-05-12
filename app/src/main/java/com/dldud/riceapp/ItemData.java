@@ -1,5 +1,7 @@
 package com.dldud.riceapp;
 
+import net.daum.mf.map.api.MapReverseGeoCoder;
+
 /**
  * Created by dldud on 2018-04-05.
  */
@@ -17,6 +19,35 @@ public class ItemData {
     public String strContent;
     public double douLatitude;
     public double douLongitude;
+
+    private int iMarkerIndex = -1;
+    private String strAddress = null;
+    private MapReverseGeoCoder reverseGeoCoder = null;
+
+
+    public int getiMarkerIndex() {
+        return iMarkerIndex;
+    }
+
+    public void setiMarkerIndex(int iMarkerIndex) {
+        this.iMarkerIndex = iMarkerIndex;
+    }
+
+    public String getStrAddress() {
+        return strAddress;
+    }
+
+    public void setStrAddress(String strAddress) {
+        this.strAddress = strAddress;
+    }
+
+    public void setReverseGeoCoder(MapReverseGeoCoder reverseGeoCoder) {
+        this.reverseGeoCoder = reverseGeoCoder;
+    }
+
+    public MapReverseGeoCoder getReverseGeoCoder() {
+        return reverseGeoCoder;
+    }
 
     //Getters and Setters
     public String getStrLike() {
@@ -114,4 +145,14 @@ public class ItemData {
     public void setDouLongitude(double douLongitude) {
         this.douLongitude = douLongitude;
     }
+
+    /*
+    @Override
+    public boolean equals(Object obj)
+    {
+        if(obj instanceof ItemData)
+        {
+            if()
+        }
+    }*/
 }
