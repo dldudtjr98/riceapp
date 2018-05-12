@@ -38,6 +38,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     private ReplyAdapter rAdapter;
     private String replyString;
     private String userString;
+    private String likeString;
+    private TaskLike taskLike = new TaskLike();
     private TaskReply taskReply = new TaskReply();
     private TaskUser taskUser = new TaskUser();
     private String imgUrl = "http://52.78.18.156/data/riceapp/";
@@ -89,9 +91,29 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         holder.oTextReply.setText(item.getStrReply());
         holder.oTextUserId.setText(item.getStrUserName());
         holder.oTextContent.setText(item.getStrContent());
+        holder.oTextLikeCnt.setText(item.getStrPingLike());
 
 
+        holder.oTextLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
 
+                    taskLike.jsonParser(likeString);
+                    likeString = taskLike.execute("http://52.78.18.156/public/ping_like_db.php").get();
+                    String[] pingIdx = taskLike.idx.toArray(new String[taskLike.idx.size()]);
+
+                    String idx;
+                    idx = item.getStrIdx();
+
+
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }catch(ExecutionException e){
+                    e.printStackTrace();
+                }
+            }
+        });
 
 
 
@@ -198,22 +220,22 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         holder.oButtonMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            holder.oFeedMap.setVisibility(View.VISIBLE);
-            holder.oMap = new MapView(context);
-            holder.oMap.setVisibility(View.VISIBLE);
-            holder.oMapContainer.setVisibility(View.VISIBLE);
-            holder.oMapContainer.addView(holder.oMap);
-            holder.oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(),item.getDouLongitude()),1,true);
-            holder.oMap.removeAllPOIItems();
-            MapPOIItem customMarker = new MapPOIItem();
-            customMarker.setItemName("here");
-            customMarker.setTag(1);
-            customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(),item.getDouLongitude()));
-            customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-            customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
-            customMarker.setCustomImageResourceId(R.drawable.marker_red);
-            customMarker.setShowCalloutBalloonOnTouch(false);
-            holder.oMap.addPOIItem(customMarker);
+                holder.oFeedMap.setVisibility(View.VISIBLE);
+                holder.oMap = new MapView(context);
+                holder.oMap.setVisibility(View.VISIBLE);
+                holder.oMapContainer.setVisibility(View.VISIBLE);
+                holder.oMapContainer.addView(holder.oMap);
+                holder.oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(),item.getDouLongitude()),1,true);
+                holder.oMap.removeAllPOIItems();
+                MapPOIItem customMarker = new MapPOIItem();
+                customMarker.setItemName("here");
+                customMarker.setTag(1);
+                customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(),item.getDouLongitude()));
+                customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                customMarker.setCustomImageResourceId(R.drawable.marker_red);
+                customMarker.setShowCalloutBalloonOnTouch(false);
+                holder.oMap.addPOIItem(customMarker);
             }
         });
 
@@ -266,6 +288,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         private TextView oTextReply;
         private TextView oTextUserId;
         private TextView oTextContent;
+        private TextView oTextLikeCnt;
         private Button oButtonMap;
         private ImageView oImageBanner;
         private ImageView oImageUser;
@@ -283,8 +306,10 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             oTextReply = (TextView)v.findViewById(R.id.replyContent);
             oTextUserId = (TextView)v.findViewById(R.id.userIdText);
             oTextContent = (TextView)v.findViewById(R.id.contentText);
+            oTextLikeCnt = (TextView)v.findViewById(R.id.likeCnt);
             oFeedMap = (FrameLayout)v.findViewById(R.id.mapFrame);
             oMapContainer = (ViewGroup)v.findViewById(R.id.mapFeed);
+
 
         }
     }

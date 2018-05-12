@@ -84,18 +84,19 @@ public class FeedFragment extends Fragment {
             String[] profile = taskUser.profile.toArray(new String[taskUser.profile.size()]);
             String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
 
-            String[] pingIdx = taskLike.idx.toArray(new String[taskLike.idx.size()]);
+            String[] likeIdx = taskLike.idx.toArray(new String[taskLike.idx.size()]);
+            String[] likeCnt = taskLike.ping_idx.toArray(new String[taskLike.ping_idx.size()]);
 
 
 
             int linearNum = idx.length;
             int userLinearNum = userIdx.length;
-
-            int pingLikeNum = pingIdx.length;
+            int likeLinearNum = likeIdx.length;
 
             for(int i = 0 ; i<linearNum ; i++) {
                 ItemData oItem = new ItemData();
 
+                int like = 0;
                 oItem.strIdx = idx[linearNum - (i + 1)];
                 oItem.strLike = "좋아요";
                 oItem.strShare = "공유";
@@ -122,6 +123,14 @@ public class FeedFragment extends Fragment {
                     oItem.strUserName = "익명";
                 }
 
+                for(int k =0; k < likeLinearNum; k++){
+                    if(likeCnt[k].equals(idx[linearNum - (i + 1)])){
+                        like++;
+                    }
+                }
+                String strLike;
+                strLike = String.valueOf(like);
+                oItem.strPingLike = strLike;
 
                 oData.add(oItem);
             }
