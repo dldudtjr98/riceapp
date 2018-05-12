@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,11 +89,12 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
             for (int i = 0; i < locationlat.length; i++) {
                 MapPOIItem customMarker = new MapPOIItem();
                 customMarker.setItemName(task.title.get(i));
-                customMarker.setTag(i + 1);
+                customMarker.setTag(Integer.parseInt(task.idx.get(i)));
                 customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(locationlat[i], locationlong[i]));
                 customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
                 customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
                 customMarker.setCustomImageResourceId(R.drawable.marker_red);
+                customMarker.setShowCalloutBalloonOnTouch(false);
 
 
                 reverseGeoCoder = new MapReverseGeoCoder(getString(R.string.kakao_app_key),
@@ -104,7 +106,7 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
 
                 ItemData newItem = new ItemData();
                 newItem.setReverseGeoCoder(reverseGeoCoder);
-                newItem.setiMarkerIndex(i + 1);
+                newItem.setiMarkerIndex(customMarker.getTag());
 
                 itemList.add(newItem);
 
@@ -136,6 +138,37 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
 
 
         return v;
+    }
+
+    @Override
+    public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
+
+/*
+        FragmentTransaction child = getChildFragmentManager().beginTransaction();
+
+        child.replace(R.id.feedDialogView, new FeedFragment());
+        //child.addToBackStack(null);
+        child.commit();*/
+
+        int curTag = mapPOIItem.getTag();
+        String curAddress = "";
+
+        for(ItemData i : itemList) {
+            if (i.getiMarkerIndex() == curTag) {
+                curAddress = i.getStrAddress();
+                break;
+            }
+        }
+
+        ArrayList<Integer> arr = new ArrayList<>();
+        for(ItemData i : itemList)
+            if(curAddress.equals(i.getStrAddress()))
+                arr.add(i.getiMarkerIndex());
+
+        Intent intent = new Intent(getActivity(),FeedDialog.class);
+        intent.putExtra("indexs", arr);
+
+        startActivity(intent);
     }
 
     @Override
@@ -180,11 +213,6 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
 
     @Override
     public void onMapViewMoveFinished(MapView mapView, MapPoint mapPoint) {
-
-    }
-
-    @Override
-    public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
 
     }
 

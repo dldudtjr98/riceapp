@@ -59,7 +59,12 @@
             android:label="@string/title_activity_kakao_sighnup"
             android:theme="@style/AppTheme" />
         <activity android:name=".PictureTransActivity" />
-        <activity android:name=".VideoTransActivity"></activity>
+        <activity android:name=".VideoTransActivity" />
+        <activity
+            android:name=".FeedDialog"
+            android:screenOrientation="portrait"
+            android:theme="@style/Dialog"
+            />
     </application>
 
 </manifest>
