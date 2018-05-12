@@ -34,7 +34,7 @@ public class FeedFragment extends Fragment {
     TaskUser taskUser = new TaskUser();
     TaskLike taskLike = new TaskLike();
 
-    private ArrayList<Integer> feedIdxs;
+    private ArrayList<Integer> feedIdxs = new ArrayList<>();
 
     private RecyclerView recyclerView;
     private RecyclerView replyView;
@@ -110,7 +110,7 @@ public class FeedFragment extends Fragment {
             int pingLikeNum = pingIdx.length;
 
             for(int i = 0 ; i<linearNum ; i++) {
-                if(feedIdxs.contains(Integer.parseInt(idx[linearNum - (i + 1)]))) {
+                if (feedIdxs.contains(Integer.parseInt(idx[linearNum - (i + 1)])) || feedIdxs.size() == 0) {
                     ItemData oItem = new ItemData();
 
                     oItem.strIdx = idx[linearNum - (i + 1)];
