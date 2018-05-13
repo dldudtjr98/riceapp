@@ -2,8 +2,11 @@ package com.dldud.riceapp;
 
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +18,12 @@ import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapReverseGeoCoder;
 import net.daum.mf.map.api.MapView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class MapFragment extends Fragment implements MapView.MapViewEventListener, MapView.POIItemEventListener, MapView.CurrentLocationEventListener, MapReverseGeoCoder.ReverseGeoCodingResultListener{
 
@@ -23,6 +31,10 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
     String myString;
     double latitude, longitude;
     int j;
+
+    private MapView mapView;
+
+    ArrayList<ItemData> itemList = new ArrayList<>();
 
     public MapFragment() {
         // Required empty public constructor
@@ -34,8 +46,9 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
         //GPSTracker class
         GPSInfo gps;
 
+        mapView = new MapView(getActivity());
+
         Button mapDialog, gotoMyPoint;
-        final MapView mapView = new MapView(getActivity());
         final CameraUpdateFactory cameraUpdateFactory = new CameraUpdateFactory();
 
         View v = inflater.inflate(R.layout.fragment_map, container, false);
@@ -62,6 +75,8 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
             e.printStackTrace();
         }
 
+        MapReverseGeoCoder reverseGeoCoder = null;
+
         if (task.idx != null && !task.idx.isEmpty()) {
             String[] strlocationlat = task.locationlat.toArray(new String[task.locationlat.size()]);
             String[] strlocationlong = task.locationlong.toArray(new String[task.locationlong.size()]);
@@ -74,11 +89,26 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
             for (int i = 0; i < locationlat.length; i++) {
                 MapPOIItem customMarker = new MapPOIItem();
                 customMarker.setItemName(task.title.get(i));
-                customMarker.setTag(i + 1);
+                customMarker.setTag(Integer.parseInt(task.idx.get(i)));
                 customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(locationlat[i], locationlong[i]));
                 customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
                 customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
                 customMarker.setCustomImageResourceId(R.drawable.marker_red);
+                customMarker.setShowCalloutBalloonOnTouch(false);
+
+
+                reverseGeoCoder = new MapReverseGeoCoder(getString(R.string.kakao_app_key),
+                        MapPoint.mapPointWithGeoCoord(locationlat[i], locationlong[i]),
+                        this,
+                        this.getActivity());
+
+                reverseGeoCoder.startFindingAddress();
+
+                ItemData newItem = new ItemData();
+                newItem.setReverseGeoCoder(reverseGeoCoder);
+                newItem.setiMarkerIndex(customMarker.getTag());
+
+                itemList.add(newItem);
 
                 mapView.addPOIItem(customMarker);
             }
@@ -108,6 +138,37 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
 
 
         return v;
+    }
+
+    @Override
+    public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
+
+/*
+        FragmentTransaction child = getChildFragmentManager().beginTransaction();
+
+        child.replace(R.id.feedDialogView, new FeedFragment());
+        //child.addToBackStack(null);
+        child.commit();*/
+
+        int curTag = mapPOIItem.getTag();
+        String curAddress = "";
+
+        for(ItemData i : itemList) {
+            if (i.getiMarkerIndex() == curTag) {
+                curAddress = i.getStrAddress();
+                break;
+            }
+        }
+
+        ArrayList<Integer> arr = new ArrayList<>();
+        for(ItemData i : itemList)
+            if(curAddress.equals(i.getStrAddress()))
+                arr.add(i.getiMarkerIndex());
+
+        Intent intent = new Intent(getActivity(),FeedDialog.class);
+        intent.putExtra("indexs", arr);
+
+        startActivity(intent);
     }
 
     @Override
@@ -156,11 +217,6 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
     }
 
     @Override
-    public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
-
-    }
-
-    @Override
     public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem) {
 
     }
@@ -196,12 +252,49 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
     }
 
     @Override
-    public void onReverseGeoCoderFoundAddress(MapReverseGeoCoder mapReverseGeoCoder, String s) {
+    public void onReverseGeoCoderFoundAddress(MapReverseGeoCoder mapReverseGeoCoder, String s) { // 주소 찾은 경우
+        //mapReverseGeoCoder.onAddressFound();
+
+
+        Log.e("map", s);
+
+
+        for(ItemData m : itemList)
+        {
+            if(m.getReverseGeoCoder() == mapReverseGeoCoder) { // 현재 탐색중인 m이 현재 이벤트를 발생시킨 MRGC랑 같을 때
+                if (m.getStrAddress() == null) {
+                    m.setStrAddress(s);
+                    //mapView.findPOIItemByTag(m.getiMarkerIndex()).setItemName("set"); // for debug
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    /*
+                    List<ItemData> d = itemList.stream().filter(a -> a.getStrAddress() == s).collect(Collectors.toList());
+                    List<ItemData> d2 = itemList.stream().filter(a -> a.getStrAddress() == s).map(ItemData::new).collect(Collectors.toList());
+                    int itemCount = itemList.stream().filter(a -> a.getStrAddress() == s).collect(Collectors.toList()).size();*/
+                    // 개씨발쓰레기같은좆드로이드스튜디오는씨발자바8문법지원안하니까자바8문법쓸생각도하지마라개씨발좆같은쓰레기새끼들똥이나쳐먹어라씨발
+
+                    int itemCount = 0;
+                    for(ItemData id : itemList)
+                    {
+                        if(s.equals(id.getStrAddress()))
+                            itemCount++;
+
+                        if (itemCount > 1) {
+                            //           mapView.removePOIItem();
+                            mapView.removePOIItem(mapView.findPOIItemByTag(m.getiMarkerIndex())); // 태그로 겹치는 주소의 POIItem 찾아서 마커를 지도에서 지움
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
 
     }
 
     @Override
-    public void onReverseGeoCoderFailedToFindAddress(MapReverseGeoCoder mapReverseGeoCoder) {
+    public void onReverseGeoCoderFailedToFindAddress(MapReverseGeoCoder mapReverseGeoCoder) { // 주소를 찾지 못한 경우
 
     }
 
