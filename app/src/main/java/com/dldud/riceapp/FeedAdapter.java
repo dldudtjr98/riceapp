@@ -16,14 +16,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.kakao.usermgmt.response.model.UserProfile;
 import com.squareup.picasso.Picasso;
 
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+
+import static com.dldud.riceapp.UserProfileSettingActivity.userId;
 
 /**
  * Created by dldud on 2018-05-03.
@@ -36,13 +40,12 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     private ArrayList<ReplyItemData> rData;
     private LinearLayoutManager layoutManager;
     private ReplyAdapter rAdapter;
+    private String getLikeUserString;
     private String replyString;
     private String userString;
     private String likeString;
-    private TaskLike taskLike = new TaskLike();
-    private TaskReply taskReply = new TaskReply();
-    private TaskUser taskUser = new TaskUser();
     private String imgUrl = "http://52.78.18.156/data/riceapp/";
+    final String insertUrlPath = "http://52.78.18.156/public/Ping_like_insert.php";
 
 
     public FeedAdapter(Context context, ArrayList<ItemData> items){
@@ -67,6 +70,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
+        NetworkUtil.setNetworkPolicy();
         final RecyclerView recyclerView;
         final RecyclerView replyView;
         final ItemData item = items.get(position);
@@ -97,42 +101,56 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         holder.oTextLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
+            try{
+                String idx;
+                idx = item.getStrIdx();
 
-                    taskLike.jsonParser(likeString);
-                    likeString = taskLike.execute("http://52.78.18.156/public/ping_like_db.php").get();
-                    String[] pingIdx = taskLike.idx.toArray(new String[taskLike.idx.size()]);
+                TaskLike taskLike = new TaskLike();
+                TaskUser taskUser = new TaskUser();
 
-                    String idx;
-                    idx = item.getStrIdx();
+                PHPRequestLike request = new PHPRequestLike(insertUrlPath);
 
+                userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
+                likeString = taskLike.execute("http://52.78.18.156/public/ping_like_db.php").get();
 
-                }catch(InterruptedException e){
-                    e.printStackTrace();
-                }catch(ExecutionException e){
-                    e.printStackTrace();
+                taskLike.jsonParser(likeString);
+                taskUser.jsonParser(userString);
+
+                String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
+                String[] userLink_id = taskUser.link_id.toArray(new String[taskUser.link_id.size()]);
+
+                String[] pingIdx = taskLike.idx.toArray(new String[taskLike.idx.size()]);
+                int userLinearNum = userIdx.length;
+
+                for(int i = 0 ; i < userLinearNum ; i++){
+                    String val = userLink_id[i];
+                    if(val.contains(userId)){
+                        getLikeUserString = val;
+                    }
                 }
+
+                request.PhPtest(getLikeUserString,idx);
+
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }catch(ExecutionException e){
+                e.printStackTrace();
+            }catch(MalformedURLException e){
+                e.printStackTrace();
+            }
             }
         });
-
-
-
-
-
 
         holder.oTextReply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    replyString = taskReply.execute("http://52.78.18.156/public/comment_db.php").get();
-                    userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
-                    taskUser.jsonParser(userString);
-                    taskReply.jsonParser(replyString);
-                }catch(InterruptedException e){
-                    e.printStackTrace();
-                }catch(ExecutionException e){
-                    e.printStackTrace();
-                }
+            try {
+                TaskReply taskReply = new TaskReply();
+                TaskUser taskUser = new TaskUser();
+                replyString = taskReply.execute("http://52.78.18.156/public/comment_db.php").get();
+                userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
+                taskUser.jsonParser(userString);
+                taskReply.jsonParser(replyString);
 
                 String idx;
                 idx = item.getStrIdx();
@@ -179,6 +197,12 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                 reply.setVisibility(View.VISIBLE);
                 replyView.setVisibility(View.VISIBLE);
 
+
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }catch(ExecutionException e){
+                e.printStackTrace();
+            }
             }
         });
 
