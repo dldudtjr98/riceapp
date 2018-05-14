@@ -79,50 +79,6 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
             e.printStackTrace();
         }
 
-        MapReverseGeoCoder reverseGeoCoder = null;
-
-        if (task.idx != null && !task.idx.isEmpty()) {
-            String[] strlocationlat = task.locationlat.toArray(new String[task.locationlat.size()]);
-            String[] strlocationlong = task.locationlong.toArray(new String[task.locationlong.size()]);
-            double[] locationlat = new double[strlocationlat.length];
-            double[] locationlong = new double[strlocationlong.length];
-            for (int i = 0; i < strlocationlat.length; i++) {
-                locationlat[i] = Double.parseDouble(strlocationlat[i]);
-                locationlong[i] = Double.parseDouble(strlocationlong[i]);
-            }
-            for (int i = 0; i < locationlat.length; i++) {
-                MapPOIItem customMarker = new MapPOIItem();
-                customMarker.setItemName(task.title.get(i));
-                customMarker.setTag(Integer.parseInt(task.idx.get(i)));
-                customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(locationlat[i], locationlong[i]));
-                customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-                customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
-                customMarker.setCustomImageResourceId(R.drawable.marker_red);
-                customMarker.setShowCalloutBalloonOnTouch(false);
-
-
-                reverseGeoCoder = new MapReverseGeoCoder(getString(R.string.kakao_app_key),
-                        MapPoint.mapPointWithGeoCoord(locationlat[i], locationlong[i]),
-                        this,
-                        this.getActivity());
-
-                reverseGeoCoder.startFindingAddress();
-
-                ItemData newItem = new ItemData();
-                newItem.setReverseGeoCoder(reverseGeoCoder);
-                newItem.setiMarkerIndex(customMarker.getTag());
-
-                itemList.add(newItem);
-
-                mapView.addPOIItem(customMarker);
-            }
-        }
-
-
-
-        mapView.setMapViewEventListener(this);
-        mapView.setPOIItemEventListener(this);
-        mapView.setCurrentLocationEventListener(this);
 
         animal = (Button)v.findViewById(R.id.animal);
         buttons.add(animal);
@@ -153,17 +109,96 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
 
         for(int i = 0; i < buttons.size(); i++)
         {
+            buttons.get(i).setTag(buttonString[i]);
             //filter = buttonString[i];
+            /*
             buttons.get(i).setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
+                    filter =
                     for(Button b2 : buttons)
                     {
                         b2.setVisibility(View.GONE);
+                        loadPOI();
                     }
                 }
-            });
+            });*/
         }
+
+        animal.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                filter = animal.getTag().toString();
+                for(Button b2 : buttons)
+                {
+                    b2.setVisibility(View.GONE);
+                }
+                loadPOI();
+            }
+        });
+
+
+        alchohol.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                filter = alchohol.getTag().toString();
+                for(Button b2 : buttons)
+                {
+                    b2.setVisibility(View.GONE);
+                }
+                loadPOI();
+            }
+        });
+
+        shopping.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                filter = shopping.getTag().toString();
+                for(Button b2 : buttons)
+                {
+                    b2.setVisibility(View.GONE);
+                }
+                loadPOI();
+            }
+        });
+
+
+        anything.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                filter = anything.getTag().toString();
+                for(Button b2 : buttons)
+                {
+                    b2.setVisibility(View.GONE);
+                }
+                loadPOI();
+            }
+        });
+
+        drink.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                filter = drink.getTag().toString();
+                for(Button b2 : buttons)
+                {
+                    b2.setVisibility(View.GONE);
+                }
+                loadPOI();
+            }
+        });
+
+        dining.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                filter = dining.getTag().toString();
+                for(Button b2 : buttons)
+                {
+                    b2.setVisibility(View.GONE);
+                }
+                loadPOI();
+            }
+        });
+
 
         gotoMyPoint = (Button) v. findViewById(R.id.gotoMyPoint);
         gotoMyPoint.setOnClickListener(new View.OnClickListener() {
@@ -173,9 +208,62 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
             }
         });
 
+        mapView.setMapViewEventListener(this);
+        mapView.setPOIItemEventListener(this);
+        mapView.setCurrentLocationEventListener(this);
+
+        loadPOI();
 
         return v;
     }
+
+    public void loadPOI()
+    {
+        mapView.removeAllPOIItems();
+        itemList.clear();
+        MapReverseGeoCoder reverseGeoCoder = null;
+
+        if (task.idx != null && !task.idx.isEmpty()) {
+            String[] strlocationlat = task.locationlat.toArray(new String[task.locationlat.size()]);
+            String[] strlocationlong = task.locationlong.toArray(new String[task.locationlong.size()]);
+            double[] locationlat = new double[strlocationlat.length];
+            double[] locationlong = new double[strlocationlong.length];
+            for (int i = 0; i < strlocationlat.length; i++) {
+                locationlat[i] = Double.parseDouble(strlocationlat[i]);
+                locationlong[i] = Double.parseDouble(strlocationlong[i]);
+            }
+            for (int i = 0; i < locationlat.length; i++) {
+                if(filter == null || filter.equals("anything") || filter.equals(task.title.get(i))) {
+                    MapPOIItem customMarker = new MapPOIItem();
+
+                    customMarker.setItemName(task.title.get(i));
+                    customMarker.setTag(Integer.parseInt(task.idx.get(i)));
+                    customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(locationlat[i], locationlong[i]));
+                    customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                    customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                    customMarker.setCustomImageResourceId(R.drawable.marker_red);
+                    customMarker.setShowCalloutBalloonOnTouch(false);
+
+
+                    reverseGeoCoder = new MapReverseGeoCoder(getString(R.string.kakao_app_key),
+                            MapPoint.mapPointWithGeoCoord(locationlat[i], locationlong[i]),
+                            this,
+                            this.getActivity());
+
+                    reverseGeoCoder.startFindingAddress();
+
+                    ItemData newItem = new ItemData();
+                    newItem.setReverseGeoCoder(reverseGeoCoder);
+                    newItem.setiMarkerIndex(customMarker.getTag());
+
+                    itemList.add(newItem);
+
+                    mapView.addPOIItem(customMarker);
+                }
+            }
+        }
+    }
+
 
     @Override
     public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
