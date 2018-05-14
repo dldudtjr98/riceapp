@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -40,8 +41,10 @@ public class PictureTransActivity extends AppCompatActivity {
     String picContent;
     EditText setText;
     MapView mapViewFix;
+    CheckBox picCheck;
+    String UserId;
 
-    Task task = new Task();
+
 
     private GPSInfo gps;
 
@@ -58,6 +61,7 @@ public class PictureTransActivity extends AppCompatActivity {
         NetworkUtil.setNetworkPolicy();
 
         setText = (EditText)findViewById(R.id.picContent);
+        picCheck = (CheckBox)findViewById(R.id.picAnonCheck);
 
         rg = (RadioGroup)findViewById(R.id.filterPicGroup);
 
@@ -104,7 +108,7 @@ public class PictureTransActivity extends AppCompatActivity {
 
             int id = rg.getCheckedRadioButtonId();
             RadioButton rb = (RadioButton)findViewById(id);
-            filter = rb.getText().toString();
+            filter = rb.getResources().getResourceEntryName(rb.getId());
 
             picContent = setText.getText().toString();
 
@@ -123,13 +127,19 @@ public class PictureTransActivity extends AppCompatActivity {
             }).start();
 
             try {
+                Task task = new Task();
                 String locationLong= Double.toString(longitude);
                 String locationLat = Double.toString(latitude);
                 String JSONString = task.execute(urlPath).get();
                 task.jsonParser(JSONString);
+                if(picCheck.isChecked()) {
+                    UserId = "0";
+                } else {
+                    UserId = userId;
+                }
 
                 PHPRequest request = new PHPRequest(insertUrlPath);
-                String result = request.PhPtest(userId,filter ,uploadFileName, uploadFileName, picContent, locationLat, locationLong);
+                String result = request.PhPtest(UserId,filter ,uploadFileName, uploadFileName, picContent, locationLat, locationLong);
                 if(result.equals("1")){
                     Toast.makeText(getApplication(),"전송완료",Toast.LENGTH_SHORT).show();
                 } else {

@@ -1,6 +1,5 @@
 package com.dldud.riceapp;
 
-import android.content.ClipData;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,10 +12,6 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,29 +19,7 @@ import static java.util.stream.Collectors.toList;
  */
 public class FeedFragment extends Fragment {
 
-    String imgUrl = "http://52.78.18.156/data/riceapp/";
-    String myString;
-    String userString;
-    String likeString;
-
-
-    Task task = new Task();
-    TaskUser taskUser = new TaskUser();
-    TaskLike taskLike = new TaskLike();
-
     private ArrayList<Integer> feedIdxs = new ArrayList<>();
-
-    private RecyclerView recyclerView;
-    private RecyclerView replyView;
-    private LinearLayoutManager layoutManager;
-    private LinearLayoutManager replyManager;
-    private ArrayList<ItemData> oData;
-
-    private FeedAdapter oAdapter;
-    private ReplyAdapter rAdapter;
-
-    WebView wv = null;
-    ImageView imgView;
 
     public FeedFragment() {
         // Required empty public constructor
@@ -68,16 +41,29 @@ public class FeedFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_feed, container, false);
 
+        WebView wv = null;
+        ImageView imgView;
+        RecyclerView recyclerView;
+        LinearLayoutManager layoutManager;
+        ArrayList<ItemData> oData;
+        FeedAdapter oAdapter;
+
+        String imgUrl = "http://52.78.18.156/data/riceapp/";
+        String myString;
+        String userString;
+        String likeString;
+
         recyclerView = (RecyclerView) v.findViewById(R.id.dynamicLayout);
-        replyView = (RecyclerView)v.findViewById(R.id.replyCard);
         wv = (WebView) v.findViewById(R.id.seeDetailView);
         imgView = (ImageView) v.findViewById( R.id.detailImage);
 
-
         oData = new ArrayList<>();
 
-
         try {
+            Task task = new Task();
+            TaskUser taskUser = new TaskUser();
+            TaskLike taskLike = new TaskLike();
+
             myString = task.execute("http://52.78.18.156/public/ping_db.php").get();
             userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
             likeString = taskLike.execute("http://52.78.18.156/public/ping_like_db.php").get();
@@ -102,8 +88,6 @@ public class FeedFragment extends Fragment {
 
             String[] likeIdx = taskLike.idx.toArray(new String[taskLike.idx.size()]);
             String[] likeCnt = taskLike.ping_idx.toArray(new String[taskLike.ping_idx.size()]);
-
-
 
             int linearNum = idx.length;
             int userLinearNum = userIdx.length;
@@ -132,7 +116,6 @@ public class FeedFragment extends Fragment {
                             if (val.contains(oItem.strUserId)) {
                                 oItem.strUserImage = imgUrl + profile[j];
                                 oItem.strUserName = nickname[j];
-
                             }
                         }
                     } else {
@@ -148,8 +131,8 @@ public class FeedFragment extends Fragment {
                     strLike = String.valueOf(like);
                     oItem.strPingLike = strLike;
 
-
                     oData.add(oItem);
+
                 }
             }
         } catch (InterruptedException e) {
@@ -163,9 +146,6 @@ public class FeedFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         oAdapter = new FeedAdapter(getActivity(), oData);
         recyclerView.setAdapter(oAdapter);
-
-
-
 
         return v;
     }

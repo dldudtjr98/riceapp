@@ -182,37 +182,7 @@ public class UserProfileSettingActivity extends BaseActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
-/*
-    public class RequestLogin extends AsyncTask<Void,Integer,Void>{
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            String param = "link_id="+userId+"&profile="+uploadFileName+"&nickname="+nickNameValue;
-            try{
-                URL url = new URL("http://52.78.18.156/public/UserData_Insert.php");
-                HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                conn.setRequestMethod("POST");
-                conn.setConnectTimeout(5000);
-                conn.setDoOutput(true);
-                conn.setDoInput(true);
-                OutputStream outputStream = conn.getOutputStream();
-                outputStream.write(param.getBytes("UTF-8"));
-                outputStream.flush();
-                outputStream.close();
-                conn.disconnect();
-            }catch(MalformedURLException e){
-                e.printStackTrace();
-            }catch(IOException e){
-                e.printStackTrace();
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
-*/
 
     public int uploadFile(String sourceFileUri) {
 

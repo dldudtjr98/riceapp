@@ -9,8 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.hardware.SensorManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -22,8 +24,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -32,12 +37,14 @@ import android.view.ViewGroup;
 import android.view.ViewManager;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,13 +56,12 @@ import static com.dldud.riceapp.MainActivity.navigation;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
+public class CameraFragment extends Fragment{
 
     static String picturefilename;
     static String videofilename;
 
     boolean recording = false;
-    LayoutInflater controlInflater = null;
 
     final int CAMERA_FRAGMENT_PERMISSION = 1111;
 
@@ -68,15 +74,18 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
             Manifest.permission.RECORD_AUDIO
     };
 
+    private static Context myContext;
+    private Camera mCamera;
+    private CameraPreview mPreview;
+
     private MediaRecorder recorder;
-    private Camera camera;
-    private SurfaceView sv;
-    private SurfaceHolder sh;
     private Button captureBtn;
     private Button recordBtn;
     private Button gotoFeed;
     private Button gotoMap;
     private String folderPath;
+    private OrientationEventListener orientationEventListener;
+    private String orientationCamera;
 
 
     public CameraFragment() {
@@ -88,60 +97,48 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_camera, container, false);
 
+        myContext = getActivity();
+
+
         if (Build.VERSION.SDK_INT >= 23){
             checkPermissions();
         }
 
 
+
+
         folderPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-        sv = (SurfaceView) v.findViewById(R.id.surface);
-        sh = sv.getHolder();
-        sh.addCallback(this);
-        sh.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         createFolder();
 
-        //For AutoFocus
-        controlInflater = LayoutInflater.from(getActivity().getBaseContext());
-        final View viewControl = controlInflater.inflate(R.layout.control, null);
-        final ViewGroup.LayoutParams layoutParamsControl = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
-        getActivity().addContentView(viewControl, layoutParamsControl);
-        //AutoFocus
-        ConstraintLayout layoutBackground = (ConstraintLayout) viewControl.findViewById(R.id.background);
-        layoutBackground.setOnClickListener(new ConstraintLayout.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                captureBtn.setEnabled(false);
-                camera.autoFocus(myAutoFocusCallback);
-            }
-        });
+        LinearLayout camera_preview;
+        camera_preview = (LinearLayout) v.findViewById(R.id.camera_preview);
+        mPreview = new CameraPreview(myContext, mCamera);
+        camera_preview.addView(mPreview);
+        mCamera = Camera.open();
+        mPreview.refreshCamera(mCamera);
 
-        LayoutInflater layoutInflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        recordBtn = (Button) viewControl.findViewById(R.id.recordBtn);
+        recordBtn = (Button) v.findViewById(R.id.recordBtn);
         recordBtn.setOnClickListener(videoListener);
 
-        captureBtn = (Button) viewControl.findViewById(R.id.captureBtn);
+        captureBtn = (Button) v.findViewById(R.id.captureBtn);
         captureBtn.setOnClickListener(captureListener);
         captureBtn.setOnLongClickListener(longcaptureListener);
 
-        gotoFeed = (Button) viewControl.findViewById(R.id.gotoFeed);
+        gotoFeed = (Button) v.findViewById(R.id.gotoFeed);
         gotoFeed.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                ((ViewManager) viewControl.getParent()).removeView(viewControl);
                 navigation.setSelectedItemId(R.id.navigation_feed);
             }
         });
 
-        gotoMap = (Button) viewControl.findViewById(R.id.gotoMap);
+        gotoMap = (Button) v.findViewById(R.id.gotoMap);
         gotoMap.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                ((ViewManager) viewControl.getParent()).removeView(viewControl);
                 navigation.setSelectedItemId(R.id.navigation_map);
             }
         });
-
         return v;
     }
 
@@ -149,9 +146,35 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
         @Override
         public void onClick(View v) {
             picturefilename = "lis_capture_" + GetRandName();
-            camera.takePicture(myShutterCallback, myPictureCallback_RAW, myPictureCallback_JPG);
+            mCamera.takePicture(myShutterCallback, myPictureCallback_RAW, myPictureCallback_JPG);
+
         }
     };
+
+    public void onResume() {
+        super.onResume();
+        if (mCamera == null) {
+            mCamera = Camera.open();
+            mPreview.refreshCamera(mCamera);
+        }
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        // when on Pause, release camera in order to be used from other
+        // applications
+        releaseCamera();
+    }
+
+    private void releaseCamera() {
+        // stop and release camera
+        if (mCamera != null) {
+            mCamera.release();
+            mCamera = null;
+        }
+
+    }
+
     View.OnLongClickListener longcaptureListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
@@ -163,37 +186,37 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
             getActivity().runOnUiThread(new Runnable(){
                 @Override
                 public void run(){
-                    try{
-                        if(recorder == null){
-                            recorder = new MediaRecorder();
-                        }
-                        final Intent video = new Intent(getActivity(),VideoHolderActivity.class);
-                        camera.unlock();
-                        startVideoRecording();
-                        recorder.setOutputFile(mp4Route);
-                        recorder.prepare();
-                        recorder.start();
-                        recording = true;
-                        //release when max duration
-                        recorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
-                            @Override
-                            public void onInfo(MediaRecorder mr, int what, int extra) {
-                                recorder.stop();
-                                recorder.reset();
-                                recorder.release();
-                                camera.lock();
-                                recorder = null;
-                                recording = false;
-                                startActivity(video);
-                            }
-                        });
-                        Toast.makeText(getActivity(),"촬영시작",Toast.LENGTH_LONG).show();
-                    } catch (Exception e){
-                        e.printStackTrace();
-                        recorder.release();
-                        recorder = null;
-                        recording = false;
+                try{
+                    if(recorder == null){
+                        recorder = new MediaRecorder();
                     }
+                    final Intent video = new Intent(getActivity(),VideoHolderActivity.class);
+                    mCamera.unlock();
+                    startVideoRecording();
+                    recorder.setOutputFile(mp4Route);
+                    recorder.prepare();
+                    recorder.start();
+                    recording = true;
+                    //release when max duration
+                    recorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
+                        @Override
+                        public void onInfo(MediaRecorder mr, int what, int extra) {
+                            recorder.stop();
+                            recorder.reset();
+                            recorder.release();
+                            mCamera.lock();
+                            recorder = null;
+                            recording = false;
+                            startActivity(video);
+                        }
+                    });
+                    Toast.makeText(getActivity(),"촬영시작",Toast.LENGTH_LONG).show();
+                } catch (Exception e){
+                    e.printStackTrace();
+                    recorder.release();
+                    recorder = null;
+                    recording = false;
+                }
                 }
             });
             return true;
@@ -203,18 +226,18 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
     View.OnClickListener videoListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(recording){
-                Intent video_end = new Intent(getActivity(),VideoHolderActivity.class);
-                recorder.stop();
-                recorder.reset();
-                recorder.release();
-                camera.lock();
-                recorder = null;
-                recording = false;
-                captureBtn.setVisibility(View.VISIBLE);
-                recordBtn.setVisibility(View.GONE);
-                startActivity(video_end);
-            }
+        if(recording){
+            Intent video_end = new Intent(getActivity(),VideoHolderActivity.class);
+            recorder.stop();
+            recorder.reset();
+            recorder.release();
+            mCamera.lock();
+            recorder = null;
+            recording = false;
+            captureBtn.setVisibility(View.VISIBLE);
+            recordBtn.setVisibility(View.GONE);
+            startActivity(video_end);
+        }
         }
     };
 
@@ -271,84 +294,37 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
     Camera.PictureCallback myPictureCallback_JPG = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            Bitmap bitmapPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
+        Bitmap bitmapPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
 
-            String jpgRoute = "/storage/emulated/0/lis/"+ picturefilename + ".jpg";
-            File copyFile = new File(jpgRoute);
-            Matrix matrix = new Matrix();
-            matrix.postRotate(90);
-            bitmapPicture = Bitmap.createBitmap(bitmapPicture,0,0, bitmapPicture.getWidth(), bitmapPicture.getHeight(), matrix, true);
+        String jpgRoute = "/storage/emulated/0/lis/"+ picturefilename + ".jpg";
+        File copyFile = new File(jpgRoute);
+        final Matrix matrix = new Matrix();
+        matrix.postRotate(90);
+        bitmapPicture = Bitmap.createBitmap(bitmapPicture,0,0, bitmapPicture.getWidth(), bitmapPicture.getHeight(), matrix, true);
 
-            try {
-                final FileOutputStream fileOutputStream = new FileOutputStream(copyFile);
-                bitmapPicture.compress(Bitmap.CompressFormat.JPEG,60,fileOutputStream);
-                Intent pic = new Intent(getActivity(),PictureHolderActivity.class);
-                startActivity(pic);
-                //Toast.makeText(getActivity().getBaseContext(), "찰칵",
-                 //       Toast.LENGTH_LONG).show();
+        try {
+            final FileOutputStream fileOutputStream = new FileOutputStream(copyFile);
+            bitmapPicture.compress(Bitmap.CompressFormat.JPEG,100,fileOutputStream);
+            Intent pic = new Intent(getActivity(),PictureHolderActivity.class);
+            startActivity(pic);
 
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            camera.startPreview();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        camera.startPreview();
         }
     };
 
     private void startVideoRecording(){
 
-        recorder.setCamera(camera);
+        recorder.setCamera(mCamera);
         recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         recorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
         recorder.setMaxDuration(9000);
         recorder.setOrientationHint(90);
         recorder.setMaxFileSize(0);
-        recorder.setPreviewDisplay(sh.getSurface());
-    }
-
-    //SurfaceView Setting
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        camera = Camera.open();
-        camera.setDisplayOrientation(90);
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        refreshCamera(camera);
-    }
-
-    public void refreshCamera(Camera camera){
-        if(sh.getSurface() == null){
-            //preview surface does not exist
-            return;
-        }
-        //stop preview before making changes
-        try{
-            camera.stopPreview();
-        } catch(Exception e){
-            //ignore : tried to stop a non-existent preview
-        }
-        setCamera(camera);
-        try{
-            int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
-
-            int degrees = 0;
-
-            switch (rotation) {
-                case Surface.ROTATION_0: degrees = 0; break;
-                case Surface.ROTATION_90: degrees = 90; break;
-                case Surface.ROTATION_180: degrees = 180; break;
-                case Surface.ROTATION_270: degrees = 270; break;
-            }
-            int result  = (90 - degrees + 360) % 360;
-
-            camera.setDisplayOrientation(result);
-            camera.setPreviewDisplay(sh);
-            camera.startPreview();
-        } catch (Exception e){
-
-        }
+        recorder.setPreviewDisplay(mPreview.mHolder.getSurface());
     }
 
     public static String GetRandName(){
@@ -362,35 +338,6 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
 
         return GetName;
     }
-
-    public void setCamera(Camera cameraSet){
-        //set Camera instance
-        camera = cameraSet;
-    }
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        camera.stopPreview();
-        camera.release();
-        camera = null;
-    }
-
-    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListenerfeed
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-            return true;
-        }
-    };
-
-    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListenermap
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-            return true;
-        }
-    };
 
 }
 

@@ -4,6 +4,8 @@ package com.dldud.riceapp;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -44,8 +46,12 @@ public class PictureHolderActivity extends AppCompatActivity {
         });
 
         if(imgFile.exists()){
-            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-            iv.setImageBitmap(myBitmap);
+            try {
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                iv.setImageBitmap(myBitmap);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
         }
     }
 }

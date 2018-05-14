@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -51,8 +52,10 @@ public class VideoTransActivity extends AppCompatActivity {
     String vidContent;
     EditText setText;
     MapView mapViewFix;
+    String UserId;
+    CheckBox vidCheck;
 
-    Task task = new Task();
+
 
     private GPSInfo gps;
 
@@ -71,6 +74,7 @@ public class VideoTransActivity extends AppCompatActivity {
         final String thumbnailpath = "/storage/emulated/0/LIS/" + videofilename + ".jpg";
 
         setText = (EditText)findViewById(R.id.vidContent);
+        vidCheck = (CheckBox)findViewById(R.id.vidAnonCheck);
 
         rg = (RadioGroup)findViewById(R.id.filterVidGroup);
 
@@ -126,8 +130,10 @@ public class VideoTransActivity extends AppCompatActivity {
             longitude = mapPointGeo.longitude;
 
             int id = rg.getCheckedRadioButtonId();
+
             RadioButton rb = (RadioButton)findViewById(id);
-            filter = rb.getText().toString();
+            filter = rb.getResources().getResourceEntryName(rb.getId());
+
 
             vidContent = setText.getText().toString();
 
@@ -147,13 +153,19 @@ public class VideoTransActivity extends AppCompatActivity {
             }).start();
 
             try {
+                Task task = new Task();
                 String locationLong= Double.toString(longitude);
                 String locationLat = Double.toString(latitude);
                 String JSONString = task.execute(urlPath).get();
                 task.jsonParser(JSONString);
+                if(vidCheck.isChecked()){
+                    UserId = "0";
+                } else{
+                    UserId = userId;
+                }
 
                 PHPRequest request = new PHPRequest(insertUrlPath);
-                String result = request.PhPtest(userId, filter ,uploadFileNameVideo, uploadFileNameThumbnail, vidContent, locationLat, locationLong);
+                String result = request.PhPtest(UserId, filter ,uploadFileNameVideo, uploadFileNameThumbnail, vidContent, locationLat, locationLong);
                 if(result.equals("1")){
                     Toast.makeText(getApplication(),"전송완료",Toast.LENGTH_SHORT).show();
                 } else {

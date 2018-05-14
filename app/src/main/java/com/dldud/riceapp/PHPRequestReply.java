@@ -18,24 +18,26 @@ import java.net.URL;
 public class PHPRequestReply {
     private URL url;
 
-    public PHPRequestReply(String url) throws MalformedURLException { this.url = new URL(url); }
+    public PHPRequestReply(String url) throws MalformedURLException {
+        this.url = new URL(url);
+    }
 
     private String readStream(InputStream in) throws IOException {
         StringBuilder jsonHtml = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
         String line = null;
 
-        while((line = reader.readLine()) != null)
+        while ((line = reader.readLine()) != null)
             jsonHtml.append(line);
 
         reader.close();
         return jsonHtml.toString();
     }
 
-    public String PhPtest( final String data2, final String data3, final String data4, final String data5) {
+    public String PhPtest(final String data2, final String data3, final String data4, final String data5) {
         try {
             String postData = "user_idx=" + data2 + "&" + "ping_idx=" + data3 + "&" + "content=" + data4 + "&" + "create_date=" + data5;
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestMethod("POST");
             conn.setConnectTimeout(5000);
@@ -48,10 +50,10 @@ public class PHPRequestReply {
             String result = readStream(conn.getInputStream());
             conn.disconnect();
             return result;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Log.i("PHPRequest", "request was failed.");
             return null;
         }
 
     }
+}

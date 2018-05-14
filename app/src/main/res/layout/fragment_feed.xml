@@ -62,7 +62,7 @@
     <LinearLayout
         android:id="@+id/replyLayout"
         android:layout_width="300dp"
-        android:layout_height="wrap_content"
+        android:layout_height="300dp"
         android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -74,8 +74,9 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/replyCard"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF">
 
         </android.support.v7.widget.RecyclerView>
 
@@ -84,17 +85,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:background="#FFFFFF"
             >
 
 
             <EditText
-                android:id="@+id/replyContent"
+                android:id="@+id/comment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="textPersonName"
-                android:text="Name" />
+                android:textSize="15dp"
+                android:hint="댓글을 입력해주세요" />
 
             <Button
                 android:id="@+id/replyBtn"
