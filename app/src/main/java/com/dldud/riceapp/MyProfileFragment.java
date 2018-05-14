@@ -1,6 +1,7 @@
 package com.dldud.riceapp;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,7 @@ import com.squareup.picasso.Picasso;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Observable;
 import java.util.concurrent.ExecutionException;
 
 import static com.dldud.riceapp.UserProfileSettingActivity.userId;
@@ -39,8 +41,10 @@ public class MyProfileFragment extends Fragment {
     private TextView profileLikePing;
     TaskUser taskUser = new TaskUser();
     TaskLike taskLike = new TaskLike();
+    Task taskPing = new Task();
 
-    ArrayList<String> myLike = new ArrayList<>();
+    ArrayList<Integer> myLike = new ArrayList<>();
+    ArrayList<Integer> myPing = new ArrayList<>();
 
     String userString;
     String userImg;
@@ -57,6 +61,39 @@ public class MyProfileFragment extends Fragment {
         MyProfileFragment fragment = new MyProfileFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        PageAdapter pageAdapter
+                = new PageAdapter(getActivity().getSupportFragmentManager(), tabLayout.getTabCount(), getContext());
+
+        pageAdapter.myLike = myLike;
+        pageAdapter.myPing = myPing;
+
+        viewPager.setAdapter(pageAdapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+                //notifyDataSetChanged();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
     @Override
@@ -78,6 +115,13 @@ public class MyProfileFragment extends Fragment {
         try {
             userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
             taskUser.jsonParser(userString);
+
+            String pingString = taskPing.execute("http://52.78.18.156/public/ping_db.php").get();
+            taskPing.jsonParser(pingString);
+
+            String[] ping_idx = taskPing.idx.toArray(new String[taskPing.idx.size()]);
+            String[] ping_writer_idx = taskPing.writer_id.toArray(new String[taskPing.writer_id.size()]);
+
             String[] link_id = taskUser.link_id.toArray(new String[taskUser.link_id.size()]);
             String[] idx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
             String[] profile = taskUser.profile.toArray(new String[taskUser.profile.size()]);
@@ -102,10 +146,19 @@ public class MyProfileFragment extends Fragment {
             for(int i = 0 ; i < likeUserIdx.length; i++)
             {
                 if(likeUserIdx[i].equals(userId))
-                    myLike.add(likePingIdx[i]);
+                    myLike.add(Integer.parseInt(likePingIdx[i]));
+            }
+
+            for(int i=0; i < ping_writer_idx.length; i++)
+            {
+                if(ping_writer_idx[i].equals(userId))
+                {
+                    myPing.add(Integer.parseInt(ping_idx[i]));
+                }
             }
 
             profileLikePing.setText(Integer.toString(myLike.size()));
+            profileMyPing.setText(Integer.toString(myPing.size()));
         }catch(InterruptedException e){
             e.printStackTrace();
         }catch(ExecutionException e){
@@ -139,28 +192,6 @@ public class MyProfileFragment extends Fragment {
 
         profileUserName.setText(userName);
 
-        PageAdapter pageAdapter
-                = new PageAdapter(getActivity().getSupportFragmentManager(), tabLayout.getTabCount());
-        viewPager.setAdapter(pageAdapter);
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
 
         /*
         ProfileGridAdapter pga = new ProfileGridAdapter(getActivity(), "");

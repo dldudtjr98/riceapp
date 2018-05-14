@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            if(item.getItemId() != prevId) {
+            if(item.getItemId() != prevId || prevId == R.id.navigation_feed) {
                 prevId = item.getItemId();
                 switch (item.getItemId()) {
                     case R.id.navigation_camera:

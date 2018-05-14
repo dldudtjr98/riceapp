@@ -8,14 +8,110 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/gotoMyPoint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="Button"
+        android:id="@+id/anything"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/anything"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/shopping"
+        app:layout_constraintStart_toStartOf="@+id/map_view" />
+
+    <Button
+        android:id="@+id/shopping"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/shopping2"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/drink"
+        app:layout_constraintStart_toStartOf="@+id/map_view" />
+
+    <Button
+        android:id="@+id/drink"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/drink"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/dining"
+        app:layout_constraintStart_toStartOf="@+id/map_view" />
+
+    <Button
+        android:id="@+id/dining"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/dining"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/alcohol"
+        app:layout_constraintStart_toStartOf="@+id/map_view" />
+
+    <Button
+        android:id="@+id/alcohol"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/alcohol2"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/animal"
+        app:layout_constraintStart_toStartOf="@+id/map_view" />
+
+    <Button
+        android:id="@+id/animal"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/animal"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/mapDialog"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/map_view" />
+
+    <Button
+        android:id="@+id/gotoMyPoint"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="80dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/ic_location_searching_black_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/map_view"
+        app:layout_constraintEnd_toEndOf="@+id/map_view" />
+
+    <Button
+        android:id="@+id/mapDialog"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="80dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/iconselector"
+        app:layout_constraintBottom_toBottomOf="@+id/map_view"
+        app:layout_constraintStart_toStartOf="@+id/map_view" />
 
     <SearchView
         android:id="@+id/pingSearch"
@@ -25,17 +121,12 @@
     <RelativeLayout
         android:id="@+id/map_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
     </RelativeLayout>
 
-    <Button
-        android:id="@+id/mapDialog"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="64dp"
-        android:layout_marginEnd="8dp"
-        android:background="@drawable/ic_location_searching_black_24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 </android.support.constraint.ConstraintLayout>
