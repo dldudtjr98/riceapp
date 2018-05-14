@@ -2,6 +2,7 @@ package com.dldud.riceapp;
 
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.widget.GridView;
 
 /**
  * Created by dldud on 2018-03-24.
@@ -11,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 public class PageAdapter extends FragmentPagerAdapter {
 
     private int tabCount;
+    public GridView gridView;
 
     public PageAdapter(FragmentManager fm, int tabCount){
         super(fm);
@@ -21,8 +23,8 @@ public class PageAdapter extends FragmentPagerAdapter {
     public android.support.v4.app.Fragment getItem(int position) {
         switch(position){
             case 0:
-                MyViewFragment myViewFragment = new MyViewFragment();
-                return myViewFragment;
+                //MyViewFragment myViewFragment = new MyViewFragment();
+                return new FeedFragment();
             case 1:
                 ConnectViewFragment connectViewFragment = new ConnectViewFragment();
                 return connectViewFragment;

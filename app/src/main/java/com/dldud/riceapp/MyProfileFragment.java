@@ -9,11 +9,15 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import static com.dldud.riceapp.UserProfileSettingActivity.userId;
@@ -30,7 +34,14 @@ public class MyProfileFragment extends Fragment {
     private ImageView profileImage;
     private TextView profileUserName;
     private ImageView detailImage = null;
+    //private GridView feedGrid;
+    private TextView profileMyPing;
+    private TextView profileLikePing;
     TaskUser taskUser = new TaskUser();
+    TaskLike taskLike = new TaskLike();
+
+    ArrayList<String> myLike = new ArrayList<>();
+
     String userString;
     String userImg;
     String userName;
@@ -59,6 +70,10 @@ public class MyProfileFragment extends Fragment {
         profileImage = (ImageView)v.findViewById(R.id.bannerImage);
         profileUserName = (TextView)v.findViewById(R.id.myUserName);
         detailImage = (ImageView)v.findViewById(R.id.profileDetail);
+        //feedGrid = (GridView)v.findViewById(R.id.imageGrid);
+
+        profileMyPing = (TextView)v.findViewById(R.id.myPingNum);
+        profileLikePing = (TextView)v.findViewById(R.id.sharedPingNum);
 
         try {
             userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
@@ -77,6 +92,20 @@ public class MyProfileFragment extends Fragment {
                     userName = nickname[i];
                 }
             }
+
+            String like = taskLike.execute("http://52.78.18.156/public/ping_like_db.php").get();
+
+            taskLike.jsonParser(like);
+            String[] likePingIdx = taskLike.ping_idx.toArray(new String[taskLike.ping_idx.size()]);
+            String[] likeUserIdx = taskLike.user_idx.toArray(new String[taskLike.user_idx.size()]);
+
+            for(int i = 0 ; i < likeUserIdx.length; i++)
+            {
+                if(likeUserIdx[i].equals(userId))
+                    myLike.add(likePingIdx[i]);
+            }
+
+            profileLikePing.setText(Integer.toString(myLike.size()));
         }catch(InterruptedException e){
             e.printStackTrace();
         }catch(ExecutionException e){
@@ -119,6 +148,7 @@ public class MyProfileFragment extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
+
             }
 
             @Override
@@ -131,6 +161,13 @@ public class MyProfileFragment extends Fragment {
 
             }
         });
+
+        /*
+        ProfileGridAdapter pga = new ProfileGridAdapter(getActivity(), "");
+
+        feedGrid.setAdapter(pga);
+*/
+
         return v;
     }
 
