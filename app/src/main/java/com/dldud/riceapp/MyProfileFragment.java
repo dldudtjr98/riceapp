@@ -29,6 +29,7 @@ public class MyProfileFragment extends Fragment {
     private ViewPager viewPager;
     private ImageView profileImage;
     private TextView profileUserName;
+    private ImageView detailImage = null;
     TaskUser taskUser = new TaskUser();
     String userString;
     String userImg;
@@ -57,6 +58,7 @@ public class MyProfileFragment extends Fragment {
         tabLayout = (TabLayout)v.findViewById(R.id.tabLayout);
         profileImage = (ImageView)v.findViewById(R.id.bannerImage);
         profileUserName = (TextView)v.findViewById(R.id.myUserName);
+        detailImage = (ImageView)v.findViewById(R.id.profileDetail);
 
         try {
             userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
@@ -86,6 +88,25 @@ public class MyProfileFragment extends Fragment {
                 .fit()
                 .centerCrop()
                 .into(profileImage);
+
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //imgClose.setVisibility(View.VISIBLE);
+                detailImage.setVisibility(View.VISIBLE);
+                Picasso.with(getContext())
+                        .load(userImg)
+                        .into(detailImage);
+            }
+        });
+
+        detailImage.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v){
+                detailImage.setVisibility(View.GONE);
+            }
+        });
 
         profileUserName.setText(userName);
 
