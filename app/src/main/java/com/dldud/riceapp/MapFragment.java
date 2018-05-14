@@ -31,6 +31,10 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
     String myString;
     double latitude, longitude;
     int j;
+    Button animal, alchohol, anything, shopping, dining, drink;
+    String[] buttonString = {"animal", "alcohol", "shopping", "anything", "drink", "dining"};
+    ArrayList<Button> buttons = new ArrayList<>();
+    String filter = null;
 
     private MapView mapView;
 
@@ -120,13 +124,46 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
         mapView.setPOIItemEventListener(this);
         mapView.setCurrentLocationEventListener(this);
 
+        animal = (Button)v.findViewById(R.id.animal);
+        buttons.add(animal);
+        alchohol = (Button)v.findViewById(R.id.alcohol);
+        buttons.add(alchohol);
+        shopping = (Button)v.findViewById(R.id.shopping);
+        buttons.add(shopping);
+        anything = (Button)v.findViewById(R.id.anything);
+        buttons.add(anything);
+        drink = (Button)v.findViewById(R.id.drink);
+        buttons.add(drink);
+        dining = (Button)v.findViewById(R.id.dining);
+        buttons.add(dining);
+
         mapDialog = (Button) v.findViewById(R.id.mapDialog);
         mapDialog.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                startActivity(new Intent(getActivity(),MapDialog.class));
+                animal.setVisibility(View.VISIBLE);
+                alchohol.setVisibility(View.VISIBLE);
+                shopping.setVisibility(View.VISIBLE);
+                anything.setVisibility(View.VISIBLE);
+                drink.setVisibility(View.VISIBLE);
+                dining.setVisibility(View.VISIBLE);
+                //startActivity(new Intent(getActivity(),MapDialog.class));
             }
         });
+
+        for(int i = 0; i < buttons.size(); i++)
+        {
+            //filter = buttonString[i];
+            buttons.get(i).setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    for(Button b2 : buttons)
+                    {
+                        b2.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
 
         gotoMyPoint = (Button) v. findViewById(R.id.gotoMyPoint);
         gotoMyPoint.setOnClickListener(new View.OnClickListener() {

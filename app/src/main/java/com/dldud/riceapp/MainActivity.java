@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     
     static BottomNavigationViewEx navigation;
     private static String TAG;
+    private int prevId = -1;
 
     public BottomNavigationViewEx.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationViewEx.OnNavigationItemSelectedListener() {
@@ -35,27 +36,30 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            switch (item.getItemId()) {
-                case R.id.navigation_camera:
-                    transaction.replace(R.id.ViewPage, new CameraFragment()).commit();
-                    navigation.setVisibility(View.GONE);
-                    return true;
-                case R.id.navigation_feed:
-                    transaction.replace(R.id.ViewPage, new FeedFragment()).commit();
-                    navigation.setVisibility(View.VISIBLE);
-                    return true;
-                case R.id.navigation_map:
-                    transaction.replace(R.id.ViewPage, new MapFragment()).commit();
-                    navigation.setVisibility(View.VISIBLE);
-                    return true;
-                case R.id.navigation_myProfile:
-                    transaction.replace(R.id.ViewPage, new MyProfileFragment()).commit();
-                    navigation.setVisibility(View.VISIBLE);
-                    return true;
-                case R.id.navigation_setting:
-                    transaction.replace(R.id.ViewPage, new SettingFragment()).commit();
-                    navigation.setVisibility(View.VISIBLE);
-                    return true;
+            if(item.getItemId() != prevId || prevId == R.id.navigation_feed) {
+                prevId = item.getItemId();
+                switch (item.getItemId()) {
+                    case R.id.navigation_camera:
+                        transaction.replace(R.id.ViewPage, new CameraFragment()).commit();
+                        navigation.setVisibility(View.GONE);
+                        return true;
+                    case R.id.navigation_feed:
+                        transaction.replace(R.id.ViewPage, new FeedFragment()).commit();
+                        navigation.setVisibility(View.VISIBLE);
+                        return true;
+                    case R.id.navigation_map:
+                        transaction.replace(R.id.ViewPage, new MapFragment()).commit();
+                        navigation.setVisibility(View.VISIBLE);
+                        return true;
+                    case R.id.navigation_myProfile:
+                        transaction.replace(R.id.ViewPage, new MyProfileFragment()).commit();
+                        navigation.setVisibility(View.VISIBLE);
+                        return true;
+                    case R.id.navigation_setting:
+                        transaction.replace(R.id.ViewPage, new SettingFragment()).commit();
+                        navigation.setVisibility(View.VISIBLE);
+                        return true;
+                }
             }
             return false;
         }

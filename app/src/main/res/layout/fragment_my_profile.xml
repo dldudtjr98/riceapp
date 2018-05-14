@@ -8,13 +8,25 @@
 
     <!-- TODO: Update blank fragment layout -->
 
+    <TextView
+        android:id="@+id/myPingNum"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        android:text="0"
+        app:layout_constraintStart_toEndOf="@+id/bannerImage"
+        app:layout_constraintTop_toBottomOf="@+id/myPing" />
+
     <android.support.design.widget.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="51dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/profileViewPager"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/myUserName">
 
@@ -32,24 +44,12 @@
     </android.support.design.widget.TabLayout>
 
     <TextView
-        android:id="@+id/myPingNum"
-        android:layout_width="60dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="16dp"
-        android:gravity="center_horizontal"
-        android:text="TextView"
-        app:layout_constraintStart_toEndOf="@+id/bannerImage"
-        app:layout_constraintTop_toBottomOf="@+id/myPing" />
-
-    <TextView
         android:id="@+id/sharedPingNum"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:gravity="center_horizontal"
-        android:text="TextView"
+        android:text="0"
         app:layout_constraintStart_toEndOf="@+id/myPingNum"
         app:layout_constraintTop_toBottomOf="@+id/sharedPing" />
 
@@ -57,29 +57,31 @@
         android:id="@+id/connectedPingNum"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:gravity="center_horizontal"
-        tools:layout_editor_absoluteX="280dp"
-        tools:layout_editor_absoluteY="85dp" />
+        android:text="0"
+        app:layout_constraintStart_toEndOf="@+id/sharedPingNum"
+        app:layout_constraintTop_toBottomOf="@+id/connectedPing" />
 
     <TextView
         android:id="@+id/connectedPing"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="16dp"
         android:gravity="center_horizontal"
         android:text="커넥팅"
         app:layout_constraintStart_toEndOf="@+id/sharedPing"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <TextView
         android:id="@+id/sharedPing"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="16dp"
         android:gravity="center_horizontal"
         android:text="공유핑"
         app:layout_constraintStart_toEndOf="@+id/myPing"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <TextView
         android:id="@+id/myUserName"
@@ -97,26 +99,20 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="16dp"
         android:gravity="center_horizontal"
         android:text="마이핑"
         app:layout_constraintStart_toEndOf="@+id/bannerImage"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/profileViewPager"
         android:layout_width="match_parent"
-        android:layout_height="366dp"
-        android:layout_marginBottom="4dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/tabLayout"
+        tools:layout_editor_absoluteX="0dp">
 
-        <GridView
-            android:id="@+id/imageGrid"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
     </android.support.v4.view.ViewPager>
 
     <ImageView
@@ -126,9 +122,9 @@
 
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <ImageView
         android:id="@+id/profileDetail"
@@ -136,6 +132,22 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="312dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/border"
+        android:gravity="center"
+        android:text="Profile"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
