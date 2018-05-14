@@ -1,36 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <android.support.constraint.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/DynamicConstraint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:color="#696969">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/DynamicConstraint"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:color="#696969">
 
-        <TextView
-            android:id="@+id/shareText"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="50dp"
-            android:layout_marginLeft="50dp"
-            android:gravity="center"
-            android:textColor="#FFFFFF"
-            app:layout_constraintBottom_toTopOf="@+id/mapFrame"
-            app:layout_constraintStart_toEndOf="@+id/replyContent"
-            app:layout_constraintTop_toBottomOf="@+id/contentText" />
+    <TextView
+        android:id="@+id/shareText"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="50dp"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toEndOf="@+id/replyContent"
+        app:layout_constraintTop_toBottomOf="@+id/contentText" />
 
     <TextView
         android:id="@+id/replyContent"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginStart="50dp"
-        android:layout_marginLeft="50dp"
         android:gravity="center"
         android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/mapFrame"
         app:layout_constraintStart_toEndOf="@+id/likeText"
         app:layout_constraintTop_toBottomOf="@+id/contentText" />
 
@@ -38,12 +31,9 @@
         android:id="@+id/likeText"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:gravity="center"
         android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/mapFrame"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/contentText" />
 
@@ -51,13 +41,9 @@
         android:id="@+id/mapButton"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="50dp"
-        android:layout_marginLeft="50dp"
         android:background="@drawable/ic_location_on_white_24dp"
-        app:layout_constraintBottom_toTopOf="@+id/mapFrame"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/shareText"
         app:layout_constraintTop_toBottomOf="@+id/contentText" />
@@ -66,17 +52,18 @@
         android:id="@+id/contentText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bannerImage" />
 
     <ImageView
         android:id="@+id/bannerImage"
         android:layout_width="350dp"
-        android:layout_height="200dp"
+        android:layout_height="350dp"
         android:layout_marginTop="8dp"
         android:adjustViewBounds="true"
         app:layout_constraintEnd_toEndOf="parent"
@@ -96,8 +83,8 @@
         android:id="@+id/userImage"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="10dp"
         android:src="@drawable/profile"
         app:civ_border_color="#FFffffff"
@@ -116,20 +103,85 @@
         app:layout_constraintStart_toEndOf="@+id/userImage" />
 
     <TextView
+        android:id="@+id/replyCnt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="15dp"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toEndOf="@+id/replyContent"
+        app:layout_constraintTop_toBottomOf="@+id/contentText" />
+
+    <TextView
         android:id="@+id/likeCnt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="15dp"
         android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/likeText" />
+        app:layout_constraintStart_toEndOf="@+id/likeText"
+        app:layout_constraintTop_toBottomOf="@+id/contentText" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_centerInParent="true"
-        android:background="#FFFFFF"/>
+        android:background="#FFFFFF" />
+
+    <RelativeLayout
+        android:id="@+id/replyLayout"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/replyContent">
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/replyCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            android:orientation="vertical"
+            android:paddingBottom="50dp">
+
+        </android.support.v7.widget.RecyclerView>
+
+        <LinearLayout
+            android:id="@+id/getReplyText"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@+id/replyCard"
+            android:layout_marginTop="-50dp"
+            android:background="#FFFFFF"
+            android:orientation="horizontal">
+
+
+            <EditText
+                android:id="@+id/comment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="댓글을 입력해주세요"
+                android:textSize="15dp" />
+
+            <Button
+                android:id="@+id/replyBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OK" />
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/mapFrame"
@@ -138,10 +190,12 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mapButton">
 
         <RelativeLayout
             android:id="@+id/mapFeed"

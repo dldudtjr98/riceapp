@@ -1,10 +1,14 @@
 package com.dldud.riceapp;
 
+import android.content.ClipData;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -17,9 +21,17 @@ import java.util.concurrent.ExecutionException;
  * A simple {@link Fragment} subclass.
  * implements AbsListView.OnScrollListener
  */
-public class FeedFragment extends Fragment {
+public class FeedFragment extends Fragment{
 
     private ArrayList<Integer> feedIdxs = new ArrayList<>();
+    private FeedAdapter oAdapter;
+    private ArrayList<ItemData> oData;
+
+    private String imgUrl = "http://52.78.18.156/data/riceapp/";
+    private String myString;
+    private String userString;
+    private String likeString;
+    private String replyString;
 
     public FeedFragment() {
         // Required empty public constructor
@@ -45,13 +57,7 @@ public class FeedFragment extends Fragment {
         ImageView imgView;
         RecyclerView recyclerView;
         LinearLayoutManager layoutManager;
-        ArrayList<ItemData> oData;
-        FeedAdapter oAdapter;
 
-        String imgUrl = "http://52.78.18.156/data/riceapp/";
-        String myString;
-        String userString;
-        String likeString;
 
         recyclerView = (RecyclerView) v.findViewById(R.id.dynamicLayout);
         wv = (WebView) v.findViewById(R.id.seeDetailView);
@@ -63,14 +69,19 @@ public class FeedFragment extends Fragment {
             Task task = new Task();
             TaskUser taskUser = new TaskUser();
             TaskLike taskLike = new TaskLike();
+            TaskReply taskReply = new TaskReply();
+
 
             myString = task.execute("http://52.78.18.156/public/ping_db.php").get();
             userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
             likeString = taskLike.execute("http://52.78.18.156/public/ping_like_db.php").get();
+            replyString = taskReply.execute("http://52.78.18.156/public/comment_db.php").get();
 
             task.jsonParser(myString);
             taskUser.jsonParser(userString);
             taskLike.jsonParser(likeString);
+            taskReply.jsonParser(replyString);
+
 
             //list to array
             String[] idx = task.idx.toArray(new String[task.idx.size()]);
@@ -89,14 +100,20 @@ public class FeedFragment extends Fragment {
             String[] likeIdx = taskLike.idx.toArray(new String[taskLike.idx.size()]);
             String[] likeCnt = taskLike.ping_idx.toArray(new String[taskLike.ping_idx.size()]);
 
+            String[] replyIdx = taskReply.idx.toArray(new String[taskReply.idx.size()]);
+            String[] replyCnt = taskReply.ping_idx.toArray(new String[taskReply.ping_idx.size()]);
+
             int linearNum = idx.length;
             int userLinearNum = userIdx.length;
             int likeLinearNum = likeIdx.length;
+            int replyLinearNum = replyIdx.length;
+
 
             for(int i = 0 ; i<linearNum ; i++) {
                 if (feedIdxs.contains(Integer.parseInt(idx[linearNum - (i + 1)])) || feedIdxs.size() == 0) {
                     ItemData oItem = new ItemData();
                     int like = 0;
+                    int reply = 0;
 
                     oItem.strIdx = idx[linearNum - (i + 1)];
                     oItem.strLike = "좋아요";
@@ -127,14 +144,26 @@ public class FeedFragment extends Fragment {
                             like++;
                         }
                     }
+
+                    for(int l =0; l < replyLinearNum; l++){
+                        if(replyCnt[l].equals(idx[linearNum - (i + 1)])){
+                            reply++;
+                        }
+                    }
                     String strLike;
+                    String strReply;
+
                     strLike = String.valueOf(like);
+                    strReply = String.valueOf(reply);
+
+                    oItem.strPingReply = strReply;
                     oItem.strPingLike = strLike;
 
                     oData.add(oItem);
 
                 }
             }
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -145,9 +174,12 @@ public class FeedFragment extends Fragment {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         oAdapter = new FeedAdapter(getActivity(), oData);
+
         recyclerView.setAdapter(oAdapter);
 
         return v;
     }
+
+
 
 }

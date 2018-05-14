@@ -17,6 +17,7 @@ public class ItemData {
     public String strVideo;
     public String strUserName;
     public String strPingLike;
+    public String strPingReply;
     public String strContent;
     public double douLatitude;
     public double douLongitude;
@@ -121,6 +122,14 @@ public class ItemData {
 
     public void setStrUserName(String strUserName){
         this.strUserName = strUserName;
+    }
+
+    public String getStrPingReply(){
+        return strPingReply;
+    }
+
+    public void setStrPingReply(String strPingReply){
+        this.strPingReply = strPingReply;
     }
 
     public String getStrPingLike(){

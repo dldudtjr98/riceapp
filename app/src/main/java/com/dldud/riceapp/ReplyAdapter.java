@@ -3,6 +3,7 @@ package com.dldud.riceapp;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -53,6 +54,9 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ViewHolder> 
                 .centerCrop()
                 .into(holder.oUserImage);
     }
+
+
+
 
     @Override
     public int getItemCount() {

@@ -2,12 +2,16 @@ package com.dldud.riceapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -19,6 +23,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,7 +38,10 @@ import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 import static com.dldud.riceapp.UserProfileSettingActivity.userId;
 
@@ -44,9 +52,12 @@ import static com.dldud.riceapp.UserProfileSettingActivity.userId;
 public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
     Context context;
-    private ArrayList<ItemData> items = new ArrayList<>();
+
     private ArrayList<ReplyItemData> rData;
-    private LinearLayoutManager layoutManager;
+
+    int distance =0;
+    int scrollDirection;
+
     private ReplyAdapter rAdapter;
     private String getLikeUserString;
     private String replyString;
@@ -56,6 +67,9 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     private String likeInsertUrlPath = "http://52.78.18.156/public/Ping_like_insert.php";
     private String replyInsertUrlPath = "http://52.78.18.156/public/Comment_insert.php";
 
+    private ArrayList<ItemData> items = new ArrayList<>();
+
+    private LinearLayoutManager layoutManager;
 
 
     public FeedAdapter(Context context, ArrayList<ItemData> items){
@@ -75,14 +89,12 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         return new ViewHolder(convertView);
     }
 
-
-
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
+
         NetworkUtil.setNetworkPolicy();
         final RecyclerView recyclerView;
-        final RecyclerView replyView;
         final ItemData item = items.get(position);
         rData = new ArrayList<>();
 
@@ -90,25 +102,44 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         final ImageView detailImage;
         final Button viewClose,imgClose;
         final Animation animScaleAlpha = AnimationUtils.loadAnimation(context,R.anim.anim_scale_alpha);
-        final LinearLayout reply;
 
-        final Button replyBtn;
-
-        replyBtn = (Button) ((Activity)context).findViewById(R.id.replyBtn);
         recyclerView = (RecyclerView) ((Activity)context).findViewById(R.id.dynamicLayout);
         detailImage = (ImageView) ((Activity)context).findViewById(R.id.detailImage);
         wv = (WebView) ((Activity)context).findViewById(R.id.seeDetailView);
         viewClose = (Button)((Activity)context).findViewById(R.id.wvCloseBtn);
         imgClose = (Button)((Activity)context).findViewById(R.id.imgCloseBtn);
-        reply = (LinearLayout)((Activity)context).findViewById(R.id.replyLayout);
-        replyView = (RecyclerView)((Activity)context).findViewById(R.id.replyCard);
 
+        final int mTotalScrolled  = recyclerView.computeVerticalScrollOffset();
         holder.oTextLike.setText(item.getStrLike());
         holder.oTextShare.setText(item.getStrShare());
         holder.oTextReply.setText(item.getStrReply());
         holder.oTextUserId.setText(item.getStrUserName());
         holder.oTextContent.setText(item.getStrContent());
         holder.oTextLikeCnt.setText(item.getStrPingLike());
+        holder.oTextReplyCnt.setText(item.getStrPingReply());
+
+        holder.replyView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                int action = e.getAction();
+                switch (action){
+                    case MotionEvent.ACTION_MOVE:
+                        rv.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+                }
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
 
 
         holder.oTextLike.setOnClickListener(new View.OnClickListener() {
@@ -164,8 +195,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                     holder.oTextLikeCnt.setText(String.valueOf(getCnt));
                 }
 
-                reply.setVisibility(View.GONE);
-                replyView.setVisibility(View.GONE);
+                holder.reply.setVisibility(View.GONE);
+                holder.replyView.setVisibility(View.GONE);
 
             }catch(InterruptedException e){
                 e.printStackTrace();
@@ -177,77 +208,81 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             }
         });
 
+        holder.oTextShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context,"공유기능은 아직 지원하지 않습니다",Toast.LENGTH_LONG).show();
+            }
+        });
+
         holder.oTextReply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             try {
-                holder.oTextReply.setTypeface(null, Typeface.BOLD);
-                holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,17);
-                TaskReply taskReply = new TaskReply();
-                TaskUser taskUser = new TaskUser();
-                replyString = taskReply.execute("http://52.78.18.156/public/comment_db.php").get();
-                userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
-                taskUser.jsonParser(userString);
-                taskReply.jsonParser(replyString);
-                String idx;
+                if (holder.reply.getVisibility() == View.VISIBLE) {
+                    holder.reply.setVisibility(View.GONE);
+                } else {
+                    holder.oTextReply.setTypeface(null, Typeface.BOLD);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
+                    TaskReply taskReply = new TaskReply();
+                    TaskUser taskUser = new TaskUser();
+                    replyString = taskReply.execute("http://52.78.18.156/public/comment_db.php").get();
+                    userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
+                    taskUser.jsonParser(userString);
+                    taskReply.jsonParser(replyString);
+                    String idx;
 
-                idx = item.getStrIdx();
+                    idx = item.getStrIdx();
 
-                String[] replyIdx = taskReply.idx.toArray(new String[taskReply.idx.size()]);
-                String[] replyUser = taskReply.user_idx.toArray(new String[taskReply.user_idx.size()]);
-                String[] replyPing = taskReply.ping_idx.toArray(new String[taskReply.ping_idx.size()]);
-                String[] replyContent = taskReply.content.toArray(new String[taskReply.content.size()]);
+                    String[] replyIdx = taskReply.idx.toArray(new String[taskReply.idx.size()]);
+                    String[] replyUser = taskReply.user_idx.toArray(new String[taskReply.user_idx.size()]);
+                    String[] replyPing = taskReply.ping_idx.toArray(new String[taskReply.ping_idx.size()]);
+                    String[] replyContent = taskReply.content.toArray(new String[taskReply.content.size()]);
 
-                String[] nickname = taskUser.nickname.toArray(new String[taskUser.nickname.size()]);
-                String[] profile = taskUser.profile.toArray(new String[taskUser.profile.size()]);
-                String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
+                    String[] nickname = taskUser.nickname.toArray(new String[taskUser.nickname.size()]);
+                    String[] profile = taskUser.profile.toArray(new String[taskUser.profile.size()]);
+                    String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
 
-                int replyNum = replyIdx.length;
-                int userLinearNum = userIdx.length;
+                    int replyNum = replyIdx.length;
+                    int userLinearNum = userIdx.length;
 
 
-                for(int i = 0; i < replyNum; i++) {
-                    String val = replyPing[replyNum - (i + 1)];
-                    if(val.contains(idx)) {
-                        ReplyItemData rItem = new ReplyItemData();
+                    for (int i = 0; i < replyNum; i++) {
+                        String val = replyPing[replyNum - (i + 1)];
+                        if (val.contains(idx)) {
+                            ReplyItemData rItem = new ReplyItemData();
 
-                        String strUserId;
-                        strUserId = replyUser[replyNum - (i + 1)];
-                        rItem.strReplyContent = replyContent[replyNum - (i + 1)];
+                            String strUserId;
+                            strUserId = replyUser[replyNum - (i + 1)];
+                            rItem.strReplyContent = replyContent[replyNum - (i + 1)];
 
-                        for (int j = 0; j < userLinearNum; j++) {
-                            String val1 = userIdx[j];
-                            if (val1.contains(strUserId)) {
-                                rItem.strReplyUserImage = imgUrl + profile[j];
-                                rItem.strReplyUserName = nickname[j];
+                            for (int j = 0; j < userLinearNum; j++) {
+                                String val1 = userIdx[j];
+                                if (val1.contains(strUserId)) {
+                                    rItem.strReplyUserImage = imgUrl + profile[j];
+                                    rItem.strReplyUserName = nickname[j];
+                                }
                             }
+                            rData.add(rItem);
+                            notifyDataSetChanged();
                         }
-                        rData.add(rItem);
-                        notifyDataSetChanged();
                     }
+
+                    layoutManager = new LinearLayoutManager(context);
+                    layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                    holder.replyView.setLayoutManager(layoutManager);
+                    rAdapter = new ReplyAdapter(context, rData);
+                    holder.replyView.setAdapter(rAdapter);
+
+                    holder.reply.setVisibility(View.VISIBLE);
+                    holder.replyView.setVisibility(View.VISIBLE);
                 }
-
-                layoutManager = new LinearLayoutManager(context);
-                layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-                replyView.setLayoutManager(layoutManager);
-                rAdapter = new ReplyAdapter(context,rData);
-                replyView.setAdapter(rAdapter);
-                DividerItemDecoration dividerItemDecoration =
-                        new DividerItemDecoration(context,new LinearLayoutManager(context).getOrientation());
-                replyView.addItemDecoration(dividerItemDecoration);
-
-                int x = holder.oTextReply.getLeft();
-                int y = holder.oTextReply.getTop();
-                recyclerView.smoothScrollBy(x,y);
-
-                reply.setVisibility(View.VISIBLE);
-                replyView.setVisibility(View.VISIBLE);
-
             }catch(InterruptedException e){
                 e.printStackTrace();
             }catch(ExecutionException e){
                 e.printStackTrace();
             }
+
             }
         });
 
@@ -261,8 +296,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                     detailImage.setVisibility(View.GONE);
                     wv.loadUrl("http://52.78.18.156/public/playVideo.php?video=" + name + "&type=" + type);
 
-                    reply.setVisibility(View.GONE);
-                    replyView.setVisibility(View.GONE);
+                    holder.reply.setVisibility(View.GONE);
+                    holder.replyView.setVisibility(View.GONE);
                     holder.oTextReply.setTypeface(null, Typeface.NORMAL);
                 } else {
                     imgClose.setVisibility(View.VISIBLE);
@@ -272,8 +307,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                             .load(item.getStrVideo())
                             .into(detailImage);
 
-                    reply.setVisibility(View.GONE);
-                    replyView.setVisibility(View.GONE);
+                    holder.reply.setVisibility(View.GONE);
+                    holder.replyView.setVisibility(View.GONE);
                     holder.oTextReply.setTypeface(null, Typeface.NORMAL);
                 }
             }
@@ -294,7 +329,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             }
         });
 
-        replyBtn.setOnClickListener(new View.OnClickListener() {
+        holder.replyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             try {
@@ -326,9 +361,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                     Toast.makeText(context, "댓글을 입력 후 확인버튼을 눌러주세요", Toast.LENGTH_LONG).show();
                 }else {
                     idx = item.getStrIdx();
-                    int intIdx = Integer.parseInt(idx);
-                    intIdx ++;
-                    idx = String.valueOf(intIdx);
 
                     long now = System.currentTimeMillis();
                     Date date = new Date(now);
@@ -337,13 +369,17 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
                     request.PhPtest(getLikeUserString, idx, replyContent, formatDate);
                     Toast.makeText(context, "댓글을 남겼습니다", Toast.LENGTH_LONG).show();
-                    reply.setVisibility(View.GONE);
-                    replyView.setVisibility(View.GONE);
+                    holder.reply.setVisibility(View.GONE);
+                    holder.replyView.setVisibility(View.GONE);
 
                     //keyboard gone
                     InputMethodManager mgr = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     mgr.hideSoftInputFromWindow(insertReply.getWindowToken(), 0);
                     notifyDataSetChanged();
+
+                    int getCnt = Integer.parseInt(item.getStrPingReply());
+                    getCnt++;
+                    holder.oTextReplyCnt.setText(String.valueOf(getCnt));
 
                     //Edittext initialize
                     insertReply.setText("");
@@ -388,8 +424,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                 customMarker.setShowCalloutBalloonOnTouch(false);
                 holder.oMap.addPOIItem(customMarker);
 
-                reply.setVisibility(View.GONE);
-                replyView.setVisibility(View.GONE);
+                holder.reply.setVisibility(View.GONE);
+                holder.replyView.setVisibility(View.GONE);
             }
             }
         });
@@ -398,30 +434,54 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
-            if (dy > 0 && holder.oFeedMap.getVisibility() == View.VISIBLE) {
-                // Scrolling up
-                holder.oMap.startAnimation(animScaleAlpha);
-                holder.oFeedMap.setVisibility(View.GONE);
-                holder.oMapContainer.setVisibility(View.GONE);
-                holder.oMap.setVisibility(View.GONE);
-                holder.oTextReply.setTypeface(null, Typeface.NORMAL);
-                holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                scrollDirection = dy;
+                distance+=dy;
+                Log.d("TAG", "onScrolled: " + dy);
 
-            } else if (dy <0 && holder.oFeedMap.getVisibility() == View.VISIBLE){
-                // Scrolling down
-                holder.oMap.startAnimation(animScaleAlpha);
-                holder.oFeedMap.setVisibility(View.GONE);
-                holder.oMapContainer.setVisibility(View.GONE);
-                holder.oMap.setVisibility(View.GONE);
-                holder.oTextReply.setTypeface(null, Typeface.NORMAL);
-                holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
-            } else if(dy >0){
-                holder.oTextReply.setTypeface(null, Typeface.NORMAL);
-                holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
-            } else if(dy <0){
-                holder.oTextReply.setTypeface(null, Typeface.NORMAL);
-                holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                if (dy > 0 && holder.oFeedMap.getVisibility() == View.VISIBLE) {
+                    // Scrolling up
+                    holder.oMap.startAnimation(animScaleAlpha);
+                    holder.oFeedMap.setVisibility(View.GONE);
+                    holder.oMapContainer.setVisibility(View.GONE);
+                    holder.oMap.setVisibility(View.GONE);
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+
+                } else if (dy <0 && holder.oFeedMap.getVisibility() == View.VISIBLE){
+                    // Scrolling down
+                    holder.oMap.startAnimation(animScaleAlpha);
+                    holder.oFeedMap.setVisibility(View.GONE);
+                    holder.oMapContainer.setVisibility(View.GONE);
+                    holder.oMap.setVisibility(View.GONE);
+
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                } else if(dy >0){
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                } else if(dy <0){
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                }
+                if(distance > 20000){
+                    holder.reply.setVisibility(View.GONE);
+                    holder.replyView.setVisibility(View.GONE);
+                } else if(distance < -20000){
+                    holder.reply.setVisibility(View.GONE);
+                    holder.replyView.setVisibility(View.GONE);
+                }
             }
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (scrollDirection > 0) {
+                        Log.d("TAG", "onScrollStateChanged: " + " STOPPED " + distance);
+                        distance = 0;
+                    } else {
+                        Log.d("TAG", "onScrollStateChanged: " + " STOPPED " + distance);
+                        distance = 0;
+                    }
+                }
             }
         });
 
@@ -436,9 +496,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                 .fit()
                 .centerCrop()
                 .into(holder.oImageUser);
-
-
-
     }
 
     @Override
@@ -457,9 +514,13 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         private ImageView oImageBanner;
         private ImageView oImageUser;
         private ImageView oFilterImage;
+        private TextView oTextReplyCnt;
         private FrameLayout oFeedMap;
         private ViewGroup oMapContainer;
         private MapView oMap;
+        private RelativeLayout reply;
+        private Button replyBtn;
+        private RecyclerView replyView;
 
         ViewHolder(View v) {
             super(v);
@@ -472,10 +533,13 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             oTextUserId = (TextView)v.findViewById(R.id.userIdText);
             oTextContent = (TextView)v.findViewById(R.id.contentText);
             oTextLikeCnt = (TextView)v.findViewById(R.id.likeCnt);
+            oTextReplyCnt = (TextView)v.findViewById(R.id.replyCnt);
             oFeedMap = (FrameLayout)v.findViewById(R.id.mapFrame);
             oMapContainer = (ViewGroup)v.findViewById(R.id.mapFeed);
             oFilterImage = (ImageView)v.findViewById(R.id.filterImage);
-
+            reply = (RelativeLayout) v.findViewById(R.id.replyLayout);
+            replyView = (RecyclerView)v.findViewById(R.id.replyCard);
+            replyBtn = (Button) v.findViewById(R.id.replyBtn);
 
         }
     }

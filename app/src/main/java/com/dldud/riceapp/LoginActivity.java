@@ -13,9 +13,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import com.facebook.CallbackManager;
 import com.facebook.login.widget.LoginButton;
+import com.kakao.auth.AuthType;
 import com.kakao.auth.ISessionCallback;
 import com.kakao.auth.Session;
 import com.kakao.util.exception.KakaoException;
@@ -32,11 +34,11 @@ public class LoginActivity extends BaseActivity {
 
     final int APP_PERMISSION = 1111;
     private Button skipbtn;
+    private com.kakao.usermgmt.LoginButton btnKakao;
     private SessionCallback callback; // kakao
     private CallbackManager callbackManager; // facebook
     LoginButton facebook_login; //facebook
-    static String UserNickname;
-    static String UserThumbnailPath;
+    private ImageView fakeKakao;
 
     //Naver
     OAuthLogin mOAuthLoginModule;
@@ -66,18 +68,23 @@ public class LoginActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT >= 23){
             checkPermissions();
         }
-
+/*
         skipbtn = (Button)findViewById(R.id.skipBtn);
         skipbtn.setOnClickListener(skipListener);
+*/
+        fakeKakao =(ImageView)findViewById(R.id.fake_kakao);
+        fakeKakao.setOnClickListener(loginListener);
+        btnKakao = (com.kakao.usermgmt.LoginButton)findViewById(R.id.loginButton);
+
 
         //kakao login callback
         callback = new SessionCallback();
         Session.getCurrentSession().addCallback(callback);
-
         //로그인이력확인
+
         Session.getCurrentSession().checkAndImplicitOpen();
     }
-
+/*
     View.OnClickListener skipListener = new View.OnClickListener(){
         @Override
         public void onClick(View v) {
@@ -87,6 +94,22 @@ public class LoginActivity extends BaseActivity {
         }
     };
 
+*/
+    View.OnClickListener loginListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.fake_kakao:
+                    if (callback == null) {
+                        callback = new SessionCallback();
+                        Session.getCurrentSession().addCallback(callback);
+                    }
+                    Session.getCurrentSession().checkAndImplicitOpen();
+                    btnKakao.performClick();
+                    break;
+            }
+        }
+    };
     private boolean checkPermissions(){
         int result;
         List<String> permissionList = new ArrayList<>();
