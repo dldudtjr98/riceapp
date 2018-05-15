@@ -47,8 +47,9 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".MakePingActivity" />
         <activity android:name=".VideoHolderActivity" />
-        <activity android:name=".PictureHolderActivity"
-            android:configChanges="keyboardHidden|orientation"/>
+        <activity
+            android:name=".PictureHolderActivity"
+            android:configChanges="keyboardHidden|orientation" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".UserProfileSettingActivity" />
         <activity
@@ -64,8 +65,8 @@
         <activity
             android:name=".FeedDialog"
             android:screenOrientation="portrait"
-            android:theme="@style/Dialog"
-            />
+            android:theme="@style/Dialog" />
+        <activity android:name=".sendMessage"></activity>
     </application>
 
 </manifest>
