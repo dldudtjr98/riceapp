@@ -19,6 +19,7 @@ public class ItemData {
     public String strPingLike;
     public String strPingReply;
     public String strContent;
+    public String strTitile;
     public double douLatitude;
     public double douLongitude;
 
@@ -58,6 +59,14 @@ public class ItemData {
 
     public void setStrIdx(String strIdx) {
         this.strIdx = strIdx;
+    }
+
+    public String getStrTitile() {
+        return strTitile;
+    }
+
+    public void setStrTitile(String strTitile) {
+        this.strIdx = strTitile;
     }
 
     public String getStrLike() {

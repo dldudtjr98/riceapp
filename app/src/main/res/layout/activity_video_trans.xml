@@ -75,58 +75,52 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:checkedButton="@+id/food"
+            android:checkedButton="@+id/anything_radio"
 
             android:gravity="center_vertical|center_horizontal"
             android:orientation="horizontal">
 
             <RadioButton
+                android:id="@+id/anything"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@drawable/anything_radio"
+                android:padding="4dp" />
+
+            <RadioButton
                 android:id="@+id/food"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:button="@drawable/food"
-                android:padding="2dp" />
-
-            <RadioButton
-                android:id="@+id/date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:button="@drawable/date"
-                android:padding="2dp" />
+                android:button="@drawable/food_radio"
+                android:padding="4dp" />
 
             <RadioButton
                 android:id="@+id/shopping"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:button="@drawable/shopping"
-                android:padding="2dp" />
+                android:button="@drawable/shopping_radio"
+                android:padding="4dp" />
 
             <RadioButton
                 android:id="@+id/cafe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:button="@drawable/cafe"
-                android:padding="2dp" />
+                android:button="@drawable/cafe_radio"
+                android:padding="4dp" />
 
             <RadioButton
-                android:id="@+id/landscape"
+                android:id="@+id/animal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:button="@drawable/landscape"
-                android:padding="2dp" />
+                android:button="@drawable/animal_radio"
+                android:padding="4dp" />
 
             <RadioButton
                 android:id="@+id/alcohol"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:button="@drawable/alcohol"
-                android:padding="2dp" />
-
-            <RadioButton
-                android:id="@+id/cinema"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:button="@drawable/cinema" />
+                android:button="@drawable/alcohol_radio"
+                />
 
         </RadioGroup>
     </LinearLayout>

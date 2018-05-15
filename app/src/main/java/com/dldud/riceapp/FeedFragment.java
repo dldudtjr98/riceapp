@@ -85,6 +85,7 @@ public class FeedFragment extends Fragment{
 
             //list to array
             String[] idx = task.idx.toArray(new String[task.idx.size()]);
+            String[] title = task.title.toArray(new String[task.title.size()]);
             String[] thumbnail = task.thumbnail.toArray(new String[task.thumbnail.size()]);
             String[] writer_id = task.writer_id.toArray(new String[task.writer_id.size()]);
             String[] banner = task.banner.toArray(new String[task.banner.size()]);
@@ -121,6 +122,7 @@ public class FeedFragment extends Fragment{
                     oItem.strUserId = writer_id[linearNum - (i + 1)];
                     oItem.strReply = "댓글";
                     oItem.strContent = content[linearNum - (i + 1)];
+                    oItem.strTitile = title[linearNum - (i + 1)];
 
                     oItem.strThumbnailImage = imgUrl + thumbnail[linearNum - (i + 1)];
                     oItem.douLatitude = Double.parseDouble(locationLat[linearNum - (i + 1)]);

@@ -221,6 +221,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             try {
                 if (holder.reply.getVisibility() == View.VISIBLE) {
                     holder.reply.setVisibility(View.GONE);
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
                 } else {
                     holder.oTextReply.setTypeface(null, Typeface.BOLD);
                     holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
@@ -369,17 +371,16 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
                     request.PhPtest(getLikeUserString, idx, replyContent, formatDate);
                     Toast.makeText(context, "댓글을 남겼습니다", Toast.LENGTH_LONG).show();
+                    int getCntReply = Integer.parseInt(item.getStrPingReply());
+                    getCntReply++;
+                    holder.oTextReplyCnt.setText(String.valueOf(getCntReply));
+
                     holder.reply.setVisibility(View.GONE);
                     holder.replyView.setVisibility(View.GONE);
 
                     //keyboard gone
                     InputMethodManager mgr = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     mgr.hideSoftInputFromWindow(insertReply.getWindowToken(), 0);
-                    notifyDataSetChanged();
-
-                    int getCnt = Integer.parseInt(item.getStrPingReply());
-                    getCnt++;
-                    holder.oTextReplyCnt.setText(String.valueOf(getCnt));
 
                     //Edittext initialize
                     insertReply.setText("");
@@ -506,6 +507,24 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                 .fit()
                 .centerCrop()
                 .into(holder.oImageUser);
+
+
+
+        if(item.getStrTitile().equals("shopping")){
+            holder.oFilterImage.setImageResource(R.drawable.shopping_off);
+        }else if(item.getStrTitile().equals("food")){
+            holder.oFilterImage.setImageResource(R.drawable.food_off);
+        }else if(item.getStrTitile().equals("animal")){
+            holder.oFilterImage.setImageResource(R.drawable.animal_off);
+        }else if(item.getStrTitile().equals("alcohol")){
+            holder.oFilterImage.setImageResource(R.drawable.alcohol_off);
+        }else if(item.getStrTitile().equals("cafe")){
+            holder.oFilterImage.setImageResource(R.drawable.cafe_off);
+        }else{
+            holder.oFilterImage.setImageResource(R.drawable.anything_off);
+        }
+
+
     }
 
     @Override
