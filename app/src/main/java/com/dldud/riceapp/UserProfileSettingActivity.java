@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,25 +35,29 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 public class UserProfileSettingActivity extends BaseActivity {
 
-    TaskUser taskUser = new TaskUser();
-    Button setFin;
-    ImageView setImage;
-    EditText name;
+
+    private ImageView setImage;
+    private EditText name;
     static String userId;
-    String nickNameValue;
-    ProgressDialog dialog = null;
+
+    private ProgressDialog dialog = null;
     final int PICK_FROM_ALBUM = 123;
     int serverResponseCode = 124;
     final String insertUrlPath = "http://52.78.18.156/public/UserData_Insert.php";
-    String uploadFilePath;
-    String uploadFileName;
-    Uri imgUri;
-    String upLoadServerUri = "http://52.78.18.156/public/UploadToServer.php";
+    private String uploadFilePath;
+    private String uploadFileName;
+
+    private String folderPath;
+
     final String urlPath = "http://52.78.18.156/public/user_db.php";
+    private String picturefilename;
+    private String strFilePath = "/storage/emulated/0/lis/"+ picturefilename + ".jpg";
 
 
     @Override
@@ -59,11 +65,14 @@ public class UserProfileSettingActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile_setting);
 
+        folderPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+        createFolder();
 
         NetworkUtil.setNetworkPolicy();
         Intent intent = getIntent();
         userId = intent.getStringExtra("userProfile");
-        setFin = (Button)findViewById(R.id.setFinBtn);
+        Button setFin = (Button)findViewById(R.id.setFinBtn);
         setImage = (ImageView)findViewById(R.id.imageSet);
         name = (EditText)findViewById(R.id.Name);
 
@@ -71,6 +80,7 @@ public class UserProfileSettingActivity extends BaseActivity {
         setFin.setOnClickListener(finish);
 
         try {
+            TaskUser taskUser = new TaskUser();
             String JSONString = taskUser.execute(urlPath).get();
             taskUser.jsonParser(JSONString);
 
@@ -101,6 +111,7 @@ public class UserProfileSettingActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
 
+            String nickNameValue;
             nickNameValue = name.getText().toString();
             dialog = ProgressDialog.show(UserProfileSettingActivity.this,"","유저 등록 중입니다...",true);
 
@@ -161,13 +172,19 @@ public class UserProfileSettingActivity extends BaseActivity {
     @Override
     public void onActivityResult(int requestCode,int resultCode,Intent data){
         super.onActivityResult(requestCode,resultCode,data);
+        File fileCacheItem = new File(strFilePath);
+        OutputStream out = null;
 
         if(requestCode == PICK_FROM_ALBUM)
         {
             if(resultCode == Activity.RESULT_OK){
                 try{
+                    picturefilename = "lis_profile_" + GetRandName();
+
+                    Uri imgUri;
                     String result;
                     imgUri = data.getData();
+
                     String[] filePath = {MediaStore.Images.Media.DATA};
                     Cursor cursor = getContentResolver().query(imgUri, filePath, null, null, null);
                     cursor.moveToFirst();
@@ -177,9 +194,13 @@ public class UserProfileSettingActivity extends BaseActivity {
                     Bitmap bitmap = BitmapFactory.decodeFile(imagePath,options);
                     bitmap = ExifUtils.rotateBitmap(imagePath,bitmap);
                     setImage.setImageBitmap(bitmap);
-                    result = imagePath;
-                    uploadFileName = result.substring(result.lastIndexOf("/")+1);
-                    uploadFilePath = result.replace(uploadFileName, "");
+
+                    fileCacheItem.createNewFile();
+                    out = new FileOutputStream(fileCacheItem);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
+
+                    uploadFileName = picturefilename+".jpg";
+                    uploadFilePath = "storage/emulated/0/LIS/";
                     cursor.close();
                     /*
                     getRealPathFromURI(data.getData());
@@ -189,8 +210,34 @@ public class UserProfileSettingActivity extends BaseActivity {
                 } catch (Exception e){
                     e.printStackTrace();
                 }
+                finally {
+                    try{
+                        out.close();
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
+                }
             }
         }
+    }
+
+    private void createFolder(){
+        String title = "/LIS";
+        folderPath += title;
+        File cameraDir = new File(folderPath);
+        cameraDir.mkdirs();
+    }
+
+    public static String GetRandName(){
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd");
+        String getTime = sdf.format(date);
+        int RandNum = (int)(Math.random()*100000);
+        String getNum = String.valueOf(RandNum);
+        String GetName = getTime + getNum;
+
+        return GetName;
     }
 
     private void redirectMainActivity() {
@@ -226,6 +273,7 @@ public class UserProfileSettingActivity extends BaseActivity {
             return 0;
         } else {
             try {
+                String upLoadServerUri = "http://52.78.18.156/public/UploadToServer.php";
                 // open a URL connection to the Servlet
                 FileInputStream fileInputStream = new FileInputStream(sourceFile);
                 URL url = new URL(upLoadServerUri);

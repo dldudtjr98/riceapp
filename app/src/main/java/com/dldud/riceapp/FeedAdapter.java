@@ -463,12 +463,22 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                     holder.oTextReply.setTypeface(null, Typeface.NORMAL);
                     holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
                 }
-                if(distance > 20000){
+                if(distance > 25000){
                     holder.reply.setVisibility(View.GONE);
                     holder.replyView.setVisibility(View.GONE);
-                } else if(distance < -20000){
+                    //keyboard gone
+                    EditText insertReply;
+                    insertReply = (EditText) ((Activity)context).findViewById(R.id.comment);
+                    InputMethodManager mgr = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    mgr.hideSoftInputFromWindow(insertReply.getWindowToken(), 0);
+                } else if(distance < -25000){
                     holder.reply.setVisibility(View.GONE);
                     holder.replyView.setVisibility(View.GONE);
+                    //keyboard gone
+                    EditText insertReply;
+                    insertReply = (EditText) ((Activity)context).findViewById(R.id.comment);
+                    InputMethodManager mgr = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    mgr.hideSoftInputFromWindow(insertReply.getWindowToken(), 0);
                 }
             }
             @Override
