@@ -136,7 +136,7 @@ public class FeedFragment extends Fragment{
                             }
                         }
                     } else {
-                        oItem.strUserImage = imgUrl + "test.png";
+                        oItem.strUserImage = imgUrl + "null.jpg";
                         oItem.strUserName = "익명";
                     }
                     for(int k =0; k < likeLinearNum; k++){
