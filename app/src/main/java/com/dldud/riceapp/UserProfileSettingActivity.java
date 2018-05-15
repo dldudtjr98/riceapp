@@ -57,7 +57,7 @@ public class UserProfileSettingActivity extends BaseActivity {
 
     final String urlPath = "http://52.78.18.156/public/user_db.php";
     private String picturefilename;
-    private String strFilePath = "/storage/emulated/0/lis/"+ picturefilename + ".jpg";
+
 
 
     @Override
@@ -172,14 +172,14 @@ public class UserProfileSettingActivity extends BaseActivity {
     @Override
     public void onActivityResult(int requestCode,int resultCode,Intent data){
         super.onActivityResult(requestCode,resultCode,data);
-        File fileCacheItem = new File(strFilePath);
-        OutputStream out = null;
-
         if(requestCode == PICK_FROM_ALBUM)
         {
             if(resultCode == Activity.RESULT_OK){
+                picturefilename = "lis_profile_" + GetRandName();
+                String strFilePath = "/storage/emulated/0/LIS/"+ picturefilename + ".jpg";
+                File fileCacheItem = new File(strFilePath);
+                OutputStream out = null;
                 try{
-                    picturefilename = "lis_profile_" + GetRandName();
 
                     Uri imgUri;
                     String result;
