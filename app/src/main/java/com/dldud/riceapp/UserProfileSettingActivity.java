@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
@@ -30,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
@@ -47,6 +49,7 @@ public class UserProfileSettingActivity extends BaseActivity {
     final String insertUrlPath = "http://52.78.18.156/public/UserData_Insert.php";
     String uploadFilePath;
     String uploadFileName;
+    Uri imgUri;
     String upLoadServerUri = "http://52.78.18.156/public/UploadToServer.php";
     final String urlPath = "http://52.78.18.156/public/user_db.php";
 
@@ -129,7 +132,7 @@ public class UserProfileSettingActivity extends BaseActivity {
             finish();
         }
     };
-
+/*
     private void getRealPathFromURI(Uri data) {
         String result;
         Cursor cursor = getContentResolver().query(data, null, null, null, null);
@@ -146,7 +149,7 @@ public class UserProfileSettingActivity extends BaseActivity {
             cursor.close();
         }
     }
-
+*/
 
     public void doTakeAlbumAction(){
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -163,13 +166,26 @@ public class UserProfileSettingActivity extends BaseActivity {
         {
             if(resultCode == Activity.RESULT_OK){
                 try{
+                    String result;
+                    imgUri = data.getData();
+                    String[] filePath = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(imgUri, filePath, null, null, null);
+                    cursor.moveToFirst();
+                    String imagePath = cursor.getString(cursor.getColumnIndex(filePath[0]));
+                    BitmapFactory.Options options =new BitmapFactory.Options();
+                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                    Bitmap bitmap = BitmapFactory.decodeFile(imagePath,options);
+                    bitmap = ExifUtils.rotateBitmap(imagePath,bitmap);
+                    setImage.setImageBitmap(bitmap);
+                    result = imagePath;
+                    uploadFileName = result.substring(result.lastIndexOf("/")+1);
+                    uploadFilePath = result.replace(uploadFileName, "");
+                    cursor.close();
+                    /*
                     getRealPathFromURI(data.getData());
                     Bitmap img = MediaStore.Images.Media.getBitmap(getContentResolver(),data.getData());
                     setImage.setImageBitmap(img);
-                } catch(FileNotFoundException e){
-                    e.printStackTrace();
-                } catch(IOException e){
-                    e.printStackTrace();
+                    */
                 } catch (Exception e){
                     e.printStackTrace();
                 }
