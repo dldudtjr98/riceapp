@@ -332,7 +332,7 @@ public class VideoTransActivity extends AppCompatActivity {
             return serverResponseCode;
         }
 
-    }
+    }//se
 
     @Override
     protected void onDestroy() {
