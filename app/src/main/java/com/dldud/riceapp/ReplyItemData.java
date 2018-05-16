@@ -6,12 +6,12 @@ package com.dldud.riceapp;
 
 public class ReplyItemData {
 
-    public String strReplyUserName;
-    public String strReplyTime;
-    public String strReplyContent;
-    public String strReplyUserImage;
+    private String strReplyUserName;
+    private String strReplyTime;
+    private String strReplyContent;
+    private String strReplyUserImage;
 
-    public String getStrReplyUserName(){
+    String getStrReplyUserName(){
         return strReplyUserName;
     }
 
@@ -19,7 +19,7 @@ public class ReplyItemData {
         this.strReplyUserName = strReplyUserName;
     }
 
-    public String getStrReplyTime(){
+    String getStrReplyTime(){
         return strReplyTime;
     }
 
@@ -27,7 +27,7 @@ public class ReplyItemData {
         this.strReplyTime = strReplyTime;
     }
 
-    public String getStrReplyContent(){
+    String getStrReplyContent(){
         return strReplyContent;
     }
 
@@ -35,7 +35,7 @@ public class ReplyItemData {
         this.strReplyContent = strReplyContent;
     }
 
-    public String getStrReplyUserImage(){
+    String getStrReplyUserImage(){
         return strReplyUserImage;
     }
 

@@ -81,12 +81,7 @@ public class CameraFragment extends Fragment{
     private MediaRecorder recorder;
     private Button captureBtn;
     private Button recordBtn;
-    private Button gotoFeed;
-    private Button gotoMap;
     private String folderPath;
-    private OrientationEventListener orientationEventListener;
-    private String orientationCamera;
-
 
     public CameraFragment() {
         // Required empty public constructor
@@ -98,14 +93,12 @@ public class CameraFragment extends Fragment{
         View v = inflater.inflate(R.layout.fragment_camera, container, false);
 
         myContext = getActivity();
-
+        Button gotoFeed;
+        Button gotoMap;
 
         if (Build.VERSION.SDK_INT >= 23){
             checkPermissions();
         }
-
-
-
 
         folderPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         createFolder();

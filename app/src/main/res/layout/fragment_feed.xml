@@ -6,56 +6,79 @@
     android:layout_height="match_parent"
     tools:context="com.dldud.riceapp.FeedFragment">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/dynamicLayout"
+    <android.support.v4.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#696969"
-        android:orientation="vertical"
-        android:paddingRight="5px">
+        android:id="@+id/swipe_layout">
 
-    </android.support.v7.widget.RecyclerView>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/dynamicLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#696969"
+            android:orientation="vertical"
+            android:paddingRight="5px">
 
-    <Button
-        android:id="@+id/imgCloseBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        android:visibility="gone" />
+        </android.support.v7.widget.RecyclerView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
-    <WebView
-        android:id="@+id/seeDetailView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/imageOn"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#A6000000"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/detailImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/imgCloseBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/white_x_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/videoOn"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#A6000000"
+        android:visibility="gone">
+
+        <WebView
+            android:id="@+id/seeDetailView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </WebView>
 
         <Button
             android:id="@+id/wvCloseBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Button" />
-    </WebView>
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/white_x_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/detailImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+
 </android.support.constraint.ConstraintLayout>
-
-
-
-        <!-- TODO: Update blank fragment layout -->
-
-
-
-
-

@@ -37,6 +37,7 @@ public class Task extends AsyncTask<String, Void, String>{
     public ArrayList<String> thumbnail = new ArrayList<>();
     public ArrayList<String> locationlat = new ArrayList<>();
     public ArrayList<String> locationlong = new ArrayList<>();
+    public ArrayList<String> create_date = new ArrayList<>();
 
     @Override
     protected String doInBackground(String... params) {
@@ -80,6 +81,7 @@ public class Task extends AsyncTask<String, Void, String>{
                 thumbnail.add(jObject.getString("thumbnail"));
                 locationlat.add(jObject.getString("locationlat"));
                 locationlong.add(jObject.getString("locationlong"));
+                create_date.add(jObject.getString("create_date"));
             }
         }catch (JSONException e){
             e.printStackTrace();

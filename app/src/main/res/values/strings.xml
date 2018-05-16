@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">riceapp</string>
+    <string name="app_name">라이스</string>
     <string name="title_camera">Camera</string>
     <string name="title_feed">Feed</string>
     <string name="title_map">Map</string>
@@ -12,4 +12,5 @@
     <string name="title_activity_camera_result">CameraResultActivity</string>
     <string name="title_activity_make_ping">MakePingActivity</string>
     <string name="title_activity_kakao_sighnup">kakaoSighnupActivity</string>
+
 </resources>

@@ -7,53 +7,54 @@ import net.daum.mf.map.api.MapReverseGeoCoder;
  */
 
 public class ItemData {
-    public String strIdx;
-    public String strLike;
-    public String strShare;
-    public String strReply;
-    public String strUserId;
-    public String strUserImage;
-    public String strThumbnailImage;
-    public String strVideo;
-    public String strUserName;
-    public String strPingLike;
-    public String strPingReply;
-    public String strContent;
-    public String strTitile;
-    public double douLatitude;
-    public double douLongitude;
+    String strIdx;
+    String strLike;
+    String strShare;
+    String strReply;
+    String strUserId;
+    String strUserImage;
+    String strThumbnailImage;
+    String strVideo;
+    String strUserName;
+    String strPingLike;
+    String strPingReply;
+    String strContent;
+    String strTitile;
+    String strTime;
+    double douLatitude;
+    double douLongitude;
 
     private int iMarkerIndex = -1;
     private String strAddress = null;
     private MapReverseGeoCoder reverseGeoCoder = null;
 
 
-    public int getiMarkerIndex() {
+    int getiMarkerIndex() {
         return iMarkerIndex;
     }
 
-    public void setiMarkerIndex(int iMarkerIndex) {
+    void setiMarkerIndex(int iMarkerIndex) {
         this.iMarkerIndex = iMarkerIndex;
     }
 
-    public String getStrAddress() {
+    String getStrAddress() {
         return strAddress;
     }
 
-    public void setStrAddress(String strAddress) {
+    void setStrAddress(String strAddress) {
         this.strAddress = strAddress;
     }
 
-    public void setReverseGeoCoder(MapReverseGeoCoder reverseGeoCoder) {
+    void setReverseGeoCoder(MapReverseGeoCoder reverseGeoCoder) {
         this.reverseGeoCoder = reverseGeoCoder;
     }
 
-    public MapReverseGeoCoder getReverseGeoCoder() {
+    MapReverseGeoCoder getReverseGeoCoder() {
         return reverseGeoCoder;
     }
 
     //Getters and Setters
-    public String getStrIdx() {
+    String getStrIdx() {
         return strIdx;
     }
 
@@ -61,7 +62,7 @@ public class ItemData {
         this.strIdx = strIdx;
     }
 
-    public String getStrTitile() {
+    String getStrTitile() {
         return strTitile;
     }
 
@@ -69,7 +70,15 @@ public class ItemData {
         this.strIdx = strTitile;
     }
 
-    public String getStrLike() {
+    String getStrTime() {
+        return strTime;
+    }
+
+    public void setStrTime(String strTime) {
+        this.strTime = strTime;
+    }
+
+    String getStrLike() {
         return strLike;
     }
 
@@ -77,7 +86,7 @@ public class ItemData {
         this.strLike = strLike;
     }
 
-    public String getStrShare() {
+    String getStrShare() {
         return strShare;
     }
 
@@ -85,7 +94,7 @@ public class ItemData {
         this.strShare = strShare;
     }
 
-    public String getStrReply() {
+    String getStrReply() {
         return strReply;
     }
 
@@ -101,7 +110,7 @@ public class ItemData {
         this.strUserId = strUserId;
     }
 
-    public String getStrUserImage() {
+    String getStrUserImage() {
         return strUserImage;
     }
 
@@ -109,7 +118,7 @@ public class ItemData {
         this.strUserImage = strUserImage;
     }
 
-    public String getStrThumbnailImage() {
+    String getStrThumbnailImage() {
         return strThumbnailImage;
     }
 
@@ -117,7 +126,7 @@ public class ItemData {
         this.strThumbnailImage = strThumbnailImage;
     }
 
-    public String getStrVideo() {
+    String getStrVideo() {
         return strVideo;
     }
 
@@ -125,7 +134,7 @@ public class ItemData {
         this.strVideo = strVideo;
     }
 
-    public String getStrUserName() {
+    String getStrUserName() {
         return strUserName;
     }
 
@@ -133,7 +142,7 @@ public class ItemData {
         this.strUserName = strUserName;
     }
 
-    public String getStrPingReply(){
+    String getStrPingReply(){
         return strPingReply;
     }
 
@@ -141,7 +150,7 @@ public class ItemData {
         this.strPingReply = strPingReply;
     }
 
-    public String getStrPingLike(){
+    String getStrPingLike(){
         return strPingLike;
     }
 
@@ -149,7 +158,7 @@ public class ItemData {
         this.strPingLike = strPingLike;
     }
 
-    public String getStrContent(){
+    String getStrContent(){
         return strContent;
     }
 
@@ -157,7 +166,7 @@ public class ItemData {
         this.strContent = strContent;
     }
 
-    public double getDouLatitude(){
+    double getDouLatitude(){
         return  douLatitude;
     }
 
@@ -165,7 +174,7 @@ public class ItemData {
         this.douLatitude = douLatitude;
     }
 
-    public double getDouLongitude(){
+    double getDouLongitude(){
         return douLongitude;
     }
 

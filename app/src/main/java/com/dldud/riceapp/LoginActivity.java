@@ -43,7 +43,7 @@ public class LoginActivity extends BaseActivity {
     private SessionCallback callback; // kakao
     private CallbackManager callbackManager; // facebook
     LoginButton facebook_login; //facebook
-    private ImageView fakeKakao;
+
 
     //Naver
     OAuthLogin mOAuthLoginModule;
@@ -70,6 +70,7 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         getKeyHash(getBaseContext());
+        ImageView fakeKakao;
 
         setContentView(R.layout.activity_login);
 
