@@ -343,4 +343,12 @@ public class VideoTransActivity extends AppCompatActivity {
             return serverResponseCode;
         }
     }
+
+
+    @Override
+    protected void onDestroy() {
+        Log.d("dialog", "called onDestroy");
+        dialog.dismiss();
+        super.onDestroy();
+    }
 }

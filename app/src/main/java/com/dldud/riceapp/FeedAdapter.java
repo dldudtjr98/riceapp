@@ -3,17 +3,13 @@ package com.dldud.riceapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,28 +23,24 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kakao.usermgmt.response.model.UserProfile;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
 
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import android.os.Handler;
+import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 import static com.dldud.riceapp.UserProfileSettingActivity.userId;
@@ -57,14 +49,14 @@ import static com.dldud.riceapp.UserProfileSettingActivity.userId;
  * Created by dldud on 2018-05-03.
  */
 
-public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
     Context context;
 
     private ArrayList<ReplyItemData> rData;
 
-    private final int VIEW_ITEM = 1;
-    private final int VIEW_PROG = 0;
+    int distance =0;
+    int scrollDirection;
 
     private ReplyAdapter rAdapter;
     private String getLikeUserString;
@@ -75,53 +67,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private String likeInsertUrlPath = "http://52.78.18.156/public/Ping_like_insert.php";
     private String replyInsertUrlPath = "http://52.78.18.156/public/Comment_insert.php";
 
-    private ArrayList<ItemData> items;
+    private ArrayList<ItemData> items = new ArrayList<>();
 
-    private boolean isMoreLoading = false;
-    private int visibleThreshold = 1;
-
-    private OnLoadMoreListener onLoadMoreListener;
     private LinearLayoutManager layoutManager;
-    private LinearLayoutManager replyLayoutManager;
 
-    public interface OnLoadMoreListener{
-        void onLoadMore();
-    }
 
-    public FeedAdapter(Context context, OnLoadMoreListener onLoadMoreListener){
-        this.onLoadMoreListener = onLoadMoreListener;
+    public FeedAdapter(Context context, ArrayList<ItemData> items){
         this.context = context;
-        items = new ArrayList<>();
-    }
-
-    public void setLinearLayoutManager(LinearLayoutManager linearLayoutManager){
-        this.layoutManager=linearLayoutManager;
-    }
-
-    public void setRecyclerView(RecyclerView mView){
-        mView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int firstVisibleItem, visibleItemCount, totalItemCount, lastVisibleItem;
-                visibleItemCount = recyclerView.getChildCount();
-                totalItemCount = layoutManager.getItemCount();
-                firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
-                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-
-                if (!isMoreLoading && (totalItemCount - visibleItemCount)<= (firstVisibleItem + visibleThreshold)) {
-                    if (onLoadMoreListener != null) {
-                        onLoadMoreListener.onLoadMore();
-                    }
-                    isMoreLoading = true;
-                }
-            }
-        });
-    }
-
-    @Override
-    public int getItemViewType(int position){
-        return items.get(position) != null ? VIEW_ITEM : VIEW_PROG;
+        this.items = items;
     }
 
     public void add(ItemData data){
@@ -130,469 +83,456 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
-        if (viewType == VIEW_ITEM) {
-            return new CardViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card, parent, false));
-        } else {
-            return new ProgressViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_progress, parent, false));
-        }
-    }
-
-    public void addAll(List<ItemData> lst){
-        items.clear();
-        items.addAll(lst);
-        notifyDataSetChanged();
-    }
-
-    public void addItemMore(List<ItemData> lst){
-        items.addAll(lst);
-        notifyItemRangeChanged(0,items.size());
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View convertView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.card,parent,false);
+        return new ViewHolder(convertView);
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-        if(holder instanceof CardViewHolder) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
 
-            NetworkUtil.setNetworkPolicy();
-            final RecyclerView recyclerView;
-            final ItemData item = items.get(position);
-            rData = new ArrayList<>();
 
-            final ConstraintLayout pictureBack;
-            final ConstraintLayout videoBack;
-            final WebView wv;
-            final ImageView detailImage;
-            final Button vidClose, imgClose;
+        NetworkUtil.setNetworkPolicy();
+        final RecyclerView recyclerView;
+        final ItemData item = items.get(position);
+        rData = new ArrayList<>();
 
-            videoBack = (ConstraintLayout)((Activity)context).findViewById(R.id.videoOn);
-            pictureBack = (ConstraintLayout)((Activity)context).findViewById(R.id.imageOn);
-            recyclerView = (RecyclerView) ((Activity) context).findViewById(R.id.dynamicLayout);
-            detailImage = (ImageView) ((Activity) context).findViewById(R.id.detailImage);
-            wv = (WebView) ((Activity) context).findViewById(R.id.seeDetailView);
-            vidClose = (Button) ((Activity) context).findViewById(R.id.wvCloseBtn);
-            imgClose = (Button) ((Activity) context).findViewById(R.id.imgCloseBtn);
+        final WebView wv;
+        final ImageView detailImage;
+        final Button viewClose,imgClose;
+        final Animation animScaleAlpha = AnimationUtils.loadAnimation(context,R.anim.anim_scale_alpha);
 
-            ((CardViewHolder) holder).oTextLike.setText(item.getStrLike());
-            ((CardViewHolder) holder).oTextShare.setText(item.getStrShare());
-            ((CardViewHolder) holder).oTextReply.setText(item.getStrReply());
-            ((CardViewHolder) holder).oTextUserId.setText(item.getStrUserName());
-            ((CardViewHolder) holder).oTextContent.setText(item.getStrContent());
-            ((CardViewHolder) holder).oTextLikeCnt.setText(item.getStrPingLike());
-            ((CardViewHolder) holder).oTextReplyCnt.setText(item.getStrPingReply());
-            ((CardViewHolder) holder).oTextTime.setText(item.getStrTime());
+        recyclerView = (RecyclerView) ((Activity)context).findViewById(R.id.dynamicLayout);
+        detailImage = (ImageView) ((Activity)context).findViewById(R.id.detailImage);
+        wv = (WebView) ((Activity)context).findViewById(R.id.seeDetailView);
+        viewClose = (Button)((Activity)context).findViewById(R.id.wvCloseBtn);
+        imgClose = (Button)((Activity)context).findViewById(R.id.imgCloseBtn);
 
-            ((CardViewHolder) holder).reply.setVisibility(View.GONE);
-            ((CardViewHolder) holder).replyView.setVisibility(View.GONE);
-            ((CardViewHolder) holder).oFeedMap.setVisibility(View.GONE);
-            ((CardViewHolder) holder).oMapContainer.setVisibility(View.GONE);
+        final int mTotalScrolled  = recyclerView.computeVerticalScrollOffset();
+        holder.oTextLike.setText(item.getStrLike());
+        holder.oTextShare.setText(item.getStrShare());
+        holder.oTextReply.setText(item.getStrReply());
+        holder.oTextUserId.setText(item.getStrUserName());
+        holder.oTextContent.setText(item.getStrContent());
+        holder.oTextLikeCnt.setText(item.getStrPingLike());
+        holder.oTextReplyCnt.setText(item.getStrPingReply());
 
-            ((CardViewHolder) holder).replyView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-                @Override
-                public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                    int action = e.getAction();
-                    switch (action) {
-                        case MotionEvent.ACTION_MOVE:
-                            rv.getParent().requestDisallowInterceptTouchEvent(true);
-                            break;
-                    }
-                    return false;
+        holder.replyView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                int action = e.getAction();
+                switch (action){
+                    case MotionEvent.ACTION_MOVE:
+                        rv.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
                 }
-
-                @Override
-                public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
-                }
-
-                @Override
-                public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-                }
-            });
-            ((CardViewHolder) holder).oTextLike.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        String idx;
-                        boolean isExistLike = false;
-                        TaskLike taskLike = new TaskLike();
-                        TaskUser taskUser = new TaskUser();
-                        PHPRequestLike request = new PHPRequestLike(likeInsertUrlPath);
-
-                        idx = item.getStrIdx();
-
-                        userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
-                        likeString = taskLike.execute("http://52.78.18.156/public/ping_like_db.php").get();
-
-                        taskLike.jsonParser(likeString);
-                        taskUser.jsonParser(userString);
-
-                        String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
-                        String[] userLink_id = taskUser.link_id.toArray(new String[taskUser.link_id.size()]);
-
-                        String[] pingIdx = taskLike.idx.toArray(new String[taskLike.idx.size()]);
-                        String[] pingUserIdx = taskLike.user_idx.toArray(new String[taskLike.user_idx.size()]);
-                        String[] pingPingIdx = taskLike.ping_idx.toArray(new String[taskLike.ping_idx.size()]);
-
-                        int userLinearNum = userIdx.length;
-                        int pingLinearNum = pingIdx.length;
-
-                        for (int i = 0; i < userLinearNum; i++) {
-                            String val = userLink_id[i];
-                            if (val.contains(userId)) {
-                                getLikeUserString = userIdx[i];
-                            }
-                        }
-
-                        for (int j = 0; j < pingLinearNum; j++) {
-                            String s1 = pingUserIdx[j];
-                            String s2 = pingPingIdx[j];
-                            if (s2.contains(idx) && s1.contains(getLikeUserString)) {
-                                Toast.makeText(context, "이미 좋아요를 누른 게시물입니다", Toast.LENGTH_LONG).show();
-                                isExistLike = true;
-                                break;
-                            }
-                        }
-                        if (!isExistLike) {
-                            request.PhPtest(getLikeUserString, idx);
-                            ((CardViewHolder) holder).oTextLike.setTypeface(null, Typeface.BOLD);
-                            ((CardViewHolder) holder).oTextLike.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
-                            int getCnt = Integer.parseInt(item.getStrPingLike());
-                            getCnt++;
-                            ((CardViewHolder) holder).oTextLikeCnt.setText(String.valueOf(getCnt));
-                        }
-
-                        ((CardViewHolder) holder).reply.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).replyView.setVisibility(View.GONE);
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-            ((CardViewHolder) holder).oTextShare.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(context, "공유기능은 아직 지원하지 않습니다", Toast.LENGTH_LONG).show();
-                }
-            });
-            ((CardViewHolder) holder).oTextReply.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(context, "댓글기능은 아직 지원하지 않습니다", Toast.LENGTH_LONG).show();
-                }
-            });
-
-/*
-            ((CardViewHolder) holder).oTextReply.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        ((CardViewHolder) holder).reply.setVisibility(View.VISIBLE);
-                        ((CardViewHolder) holder).replyView.setVisibility(View.VISIBLE);
-                        ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.BOLD);
-                        ((CardViewHolder) holder).oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
-
-                        TaskReply taskReply = new TaskReply();
-                        TaskUser taskUser = new TaskUser();
-                        replyString = taskReply.execute("http://52.78.18.156/public/comment_db.php").get();
-                        userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
-                        taskUser.jsonParser(userString);
-                        taskReply.jsonParser(replyString);
-                        String idx;
-
-                        idx = item.getStrIdx();
-
-                        String[] replyIdx = taskReply.idx.toArray(new String[taskReply.idx.size()]);
-                        String[] replyUser = taskReply.user_idx.toArray(new String[taskReply.user_idx.size()]);
-                        String[] replyPing = taskReply.ping_idx.toArray(new String[taskReply.ping_idx.size()]);
-                        String[] replyContent = taskReply.content.toArray(new String[taskReply.content.size()]);
-
-                        String[] nickname = taskUser.nickname.toArray(new String[taskUser.nickname.size()]);
-                        String[] profile = taskUser.profile.toArray(new String[taskUser.profile.size()]);
-                        String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
-
-                        int replyNum = replyIdx.length;
-                        int userLinearNum = userIdx.length;
-
-                        for (int i = 0; i < replyNum; i++) {
-                            String val = replyPing[replyNum - (i + 1)];
-                            if (val.contains(idx)) {
-                                ReplyItemData rItem = new ReplyItemData();
-
-                                String strUserId;
-                                strUserId = replyUser[replyNum - (i + 1)];
-                                rItem.strReplyContent = replyContent[replyNum - (i + 1)];
-
-                                for (int j = 0; j < userLinearNum; j++) {
-                                    String val1 = userIdx[j];
-                                    if (val1.contains(strUserId)) {
-                                        rItem.strReplyUserImage = imgUrl + profile[j];
-                                        rItem.strReplyUserName = nickname[j];
-                                    }
-                                }
-                                rData.add(rItem);
-                                notifyDataSetChanged();
-                            }
-                        }
-
-                        replyLayoutManager = new LinearLayoutManager(context);
-                        replyLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-                        ((CardViewHolder) holder).replyView.setLayoutManager(replyLayoutManager);
-                        rAdapter = new ReplyAdapter(context, rData);
-                        ((CardViewHolder) holder).replyView.setAdapter(rAdapter);
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-*/
-            ((CardViewHolder) holder).oImageBanner.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (item.getStrVideo().substring(item.getStrVideo().length() - 3, item.getStrVideo().length()).equals("mp4")) {
-                        String name = item.getStrVideo();
-                        String type = "video/mp4";
-
-                        videoBack.setVisibility(View.VISIBLE);
-
-                        pictureBack.setVisibility(View.GONE);
-
-                        wv.loadUrl("http://52.78.18.156/public/playVideo.php?video=" + name + "&type=" + type);
-
-                        ((CardViewHolder) holder).reply.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).replyView.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.NORMAL);
-                    } else {
-                        pictureBack.setVisibility(View.VISIBLE);
-
-                        videoBack.setVisibility(View.GONE);
-                        wv.setVisibility(View.GONE);
-
-                        Picasso.with(detailImage.getContext())
-                                .load(item.getStrVideo())
-                                .into(detailImage);
-
-                        ((CardViewHolder) holder).reply.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).replyView.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.NORMAL);
-                    }
-                }
-            });
-
-            vidClose.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    videoBack.setVisibility(View.GONE);
-                }
-            });
-
-            imgClose.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    pictureBack.setVisibility(View.GONE);
-                }
-            });
-
-            ((CardViewHolder) holder).replyBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                try {
-                    EditText insertReply;
-                    insertReply = (EditText) ((Activity) context).findViewById(R.id.comment);
-                    TaskUser taskUser = new TaskUser();
-                    String idx;
-                    String replyContent;
-                    PHPRequestReply request = new PHPRequestReply(replyInsertUrlPath);
-
-                    replyContent = insertReply.getText().toString();
-
-                    userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
-                    taskUser.jsonParser(userString);
-
-                    String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
-                    String[] userLink_id = taskUser.link_id.toArray(new String[taskUser.link_id.size()]);
-
-                    int userLinearNum = userIdx.length;
-
-                    for (int i = 0; i < userLinearNum; i++) {
-                        String val = userLink_id[i];
-                        if (val.contains(userId)) {
-                            getLikeUserString = userIdx[i];
-                        }
-                    }
-
-                    if (replyContent.equals("")) {
-                        Toast.makeText(context, "댓글을 입력 후 확인버튼을 눌러주세요", Toast.LENGTH_LONG).show();
-                    } else {
-                        idx = item.getStrIdx();
-
-                        long now = System.currentTimeMillis();
-                        Date date = new Date(now);
-                        SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
-                        String formatDate = sdfNow.format(date);
-
-                        request.PhPtest(getLikeUserString, idx, replyContent, formatDate);
-                        Toast.makeText(context, "댓글을 남겼습니다", Toast.LENGTH_LONG).show();
-                        int getCntReply = Integer.parseInt(item.getStrPingReply());
-                        getCntReply++;
-                        ((CardViewHolder) holder).oTextReplyCnt.setText(String.valueOf(getCntReply));
-
-                        //keyboard gone
-                        InputMethodManager mgr = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                        mgr.hideSoftInputFromWindow(insertReply.getWindowToken(), 0);
-
-                        //Edittext initialize
-                        insertReply.setText("");
-                        insertReply.setHint("댓글을 입력해주세요");
-
-                        ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.NORMAL);
-                        ((CardViewHolder) holder).oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-                    }
-
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
-                }
-            });
-
-            ((CardViewHolder) holder).oButtonMap.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                if(((CardViewHolder) holder).oFeedMap.getVisibility() == View.VISIBLE) {
-                    ((CardViewHolder) holder).oFeedMap.setVisibility(View.GONE);
-                    ((CardViewHolder) holder).oMap.setVisibility(View.GONE);
-                    ((CardViewHolder) holder).oMapContainer.setVisibility(View.GONE);
-                }else {
-                    ((CardViewHolder) holder).oFeedMap.setVisibility(View.VISIBLE);
-                    ((CardViewHolder) holder).oMap = new MapView(context);
-                    ((CardViewHolder) holder).oMap.setVisibility(View.VISIBLE);
-                    ((CardViewHolder) holder).oMapContainer.setVisibility(View.VISIBLE);
-                    ((CardViewHolder) holder).oMapContainer.addView(((CardViewHolder) holder).oMap);
-                    ((CardViewHolder) holder).oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()), 1, true);
-                    ((CardViewHolder) holder).oMap.removeAllPOIItems();
-                    MapPOIItem customMarker = new MapPOIItem();
-                    customMarker.setItemName("here");
-                    customMarker.setTag(1);
-                    customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()));
-                    customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-                    customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
-                    customMarker.setCustomImageResourceId(R.drawable.marker_red);
-                    customMarker.setShowCalloutBalloonOnTouch(false);
-                    ((CardViewHolder) holder).oMap.addPOIItem(customMarker);
-                }
-                }
-            });
-
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-
-                    if (dy > 0 && ((CardViewHolder) holder).oFeedMap.getVisibility() == View.VISIBLE) {
-                        // Scrolling up
-                        ((CardViewHolder) holder).oFeedMap.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).oMapContainer.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).oMap.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.NORMAL);
-                        ((CardViewHolder) holder).oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-
-                    } else if (dy < 0 && ((CardViewHolder) holder).oFeedMap.getVisibility() == View.VISIBLE) {
-                        // Scrolling down
-                        ((CardViewHolder) holder).oFeedMap.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).oMapContainer.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).oMap.setVisibility(View.GONE);
-
-                        ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.NORMAL);
-                        ((CardViewHolder) holder).oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-                    } else if (dy > 0) {
-                        ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.NORMAL);
-                        ((CardViewHolder) holder).oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-                    } else if (dy < 0) {
-                        ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.NORMAL);
-                        ((CardViewHolder) holder).oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-                    }
-                }
-            });
-
-            Picasso.with(context)
-                    .load(item.getStrThumbnailImage())
-                    .fit()
-                    .centerCrop()
-                    .placeholder(R.drawable.loading_img)
-                    .into(((CardViewHolder) holder).oImageBanner);
-
-            Picasso.with(context)
-                    .load(item.getStrUserImage())
-                    .fit()
-                    .centerCrop()
-                    .into(((CardViewHolder) holder).oImageUser);
-
-
-            if (item.getStrTitile().equals("shopping")) {
-                ((CardViewHolder) holder).oFilterImage.setImageResource(R.drawable.shopping_off);
-            } else if (item.getStrTitile().equals("food")) {
-                ((CardViewHolder) holder).oFilterImage.setImageResource(R.drawable.food_off);
-            } else if (item.getStrTitile().equals("animal")) {
-                ((CardViewHolder) holder).oFilterImage.setImageResource(R.drawable.animal_off);
-            } else if (item.getStrTitile().equals("alcohol")) {
-                ((CardViewHolder) holder).oFilterImage.setImageResource(R.drawable.alcohol_off);
-            } else if (item.getStrTitile().equals("cafe")) {
-                ((CardViewHolder) holder).oFilterImage.setImageResource(R.drawable.cafe_off);
-            } else {
-                ((CardViewHolder) holder).oFilterImage.setImageResource(R.drawable.anything_off);
+                return false;
             }
 
+            @Override
+            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
+
+
+        holder.oTextLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            try{
+                String idx;
+                boolean isExistLike = false;
+                TaskLike taskLike = new TaskLike();
+                TaskUser taskUser = new TaskUser();
+                PHPRequestLike request = new PHPRequestLike(likeInsertUrlPath);
+
+                idx = item.getStrIdx();
+
+                userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
+                likeString = taskLike.execute("http://52.78.18.156/public/ping_like_db.php").get();
+
+                taskLike.jsonParser(likeString);
+                taskUser.jsonParser(userString);
+
+                String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
+                String[] userLink_id = taskUser.link_id.toArray(new String[taskUser.link_id.size()]);
+
+                String[] pingIdx = taskLike.idx.toArray(new String[taskLike.idx.size()]);
+                String[] pingUserIdx = taskLike.user_idx.toArray(new String[taskLike.user_idx.size()]);
+                String[] pingPingIdx = taskLike.ping_idx.toArray(new String[taskLike.ping_idx.size()]);
+
+                int userLinearNum = userIdx.length;
+                int pingLinearNum = pingIdx.length;
+
+                for(int i = 0 ; i < userLinearNum ; i++){
+                    String val = userLink_id[i];
+                    if(val.contains(userId)){
+                        getLikeUserString = userIdx[i];
+                    }
+                }
+
+                for(int j = 0; j< pingLinearNum ; j++){
+                    String s1 = pingUserIdx[j];
+                    String s2 = pingPingIdx[j];
+                    if(s2.contains(idx) && s1.contains(getLikeUserString)){
+                        Toast.makeText(context,"이미 좋아요를 누른 게시물입니다",Toast.LENGTH_LONG).show();
+                        isExistLike = true;
+                        break;
+                    }
+                }
+                if(!isExistLike) {
+                    request.PhPtest(getLikeUserString, idx);
+                    holder.oTextLike.setTypeface(null, Typeface.BOLD);
+                    holder.oTextLike.setTextSize(TypedValue.COMPLEX_UNIT_DIP,17);
+                    int getCnt = Integer.parseInt(item.getStrPingLike());
+                    getCnt++;
+                    holder.oTextLikeCnt.setText(String.valueOf(getCnt));
+                }
+
+                holder.reply.setVisibility(View.GONE);
+                holder.replyView.setVisibility(View.GONE);
+
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }catch(ExecutionException e){
+                e.printStackTrace();
+            }catch(MalformedURLException e){
+                e.printStackTrace();
+            }
+            }
+        });
+
+        holder.oTextShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context,"공유기능은 아직 지원하지 않습니다",Toast.LENGTH_LONG).show();
+            }
+        });
+
+        holder.oTextReply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            try {
+                if (holder.reply.getVisibility() == View.VISIBLE) {
+                    holder.reply.setVisibility(View.GONE);
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                } else {
+                    holder.oTextReply.setTypeface(null, Typeface.BOLD);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
+                    TaskReply taskReply = new TaskReply();
+                    TaskUser taskUser = new TaskUser();
+                    replyString = taskReply.execute("http://52.78.18.156/public/comment_db.php").get();
+                    userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
+                    taskUser.jsonParser(userString);
+                    taskReply.jsonParser(replyString);
+                    String idx;
+
+                    idx = item.getStrIdx();
+
+                    String[] replyIdx = taskReply.idx.toArray(new String[taskReply.idx.size()]);
+                    String[] replyUser = taskReply.user_idx.toArray(new String[taskReply.user_idx.size()]);
+                    String[] replyPing = taskReply.ping_idx.toArray(new String[taskReply.ping_idx.size()]);
+                    String[] replyContent = taskReply.content.toArray(new String[taskReply.content.size()]);
+
+                    String[] nickname = taskUser.nickname.toArray(new String[taskUser.nickname.size()]);
+                    String[] profile = taskUser.profile.toArray(new String[taskUser.profile.size()]);
+                    String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
+
+                    int replyNum = replyIdx.length;
+                    int userLinearNum = userIdx.length;
+
+
+                    for (int i = 0; i < replyNum; i++) {
+                        String val = replyPing[replyNum - (i + 1)];
+                        if (val.contains(idx)) {
+                            ReplyItemData rItem = new ReplyItemData();
+
+                            String strUserId;
+                            strUserId = replyUser[replyNum - (i + 1)];
+                            rItem.strReplyContent = replyContent[replyNum - (i + 1)];
+
+                            for (int j = 0; j < userLinearNum; j++) {
+                                String val1 = userIdx[j];
+                                if (val1.contains(strUserId)) {
+                                    rItem.strReplyUserImage = imgUrl + profile[j];
+                                    rItem.strReplyUserName = nickname[j];
+                                }
+                            }
+                            rData.add(rItem);
+                            notifyDataSetChanged();
+                        }
+                    }
+
+                    layoutManager = new LinearLayoutManager(context);
+                    layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                    holder.replyView.setLayoutManager(layoutManager);
+                    rAdapter = new ReplyAdapter(context, rData);
+                    holder.replyView.setAdapter(rAdapter);
+
+                    holder.reply.setVisibility(View.VISIBLE);
+                    holder.replyView.setVisibility(View.VISIBLE);
+                }
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }catch(ExecutionException e){
+                e.printStackTrace();
+            }
+
+            }
+        });
+
+        holder.oImageBanner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(item.getStrVideo().substring(item.getStrVideo().length()-3,item.getStrVideo().length()).equals("mp4")) {
+                    String name = item.getStrVideo();
+                    String type = "video/mp4";
+                    wv.setVisibility(View.VISIBLE);
+                    detailImage.setVisibility(View.GONE);
+                    wv.loadUrl("http://52.78.18.156/public/playVideo.php?video=" + name + "&type=" + type);
+
+                    holder.reply.setVisibility(View.GONE);
+                    holder.replyView.setVisibility(View.GONE);
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                } else {
+                    imgClose.setVisibility(View.VISIBLE);
+                    wv.setVisibility(View.GONE);
+                    detailImage.setVisibility(View.VISIBLE);
+                    Picasso.with(detailImage.getContext())
+                            .load(item.getStrVideo())
+                            .into(detailImage);
+
+                    holder.reply.setVisibility(View.GONE);
+                    holder.replyView.setVisibility(View.GONE);
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                }
+            }
+        });
+
+        viewClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                wv.setVisibility(View.GONE);
+            }
+        });
+
+        imgClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                detailImage.setVisibility(View.GONE);
+                imgClose.setVisibility(View.GONE);
+            }
+        });
+
+        holder.replyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            try {
+                EditText insertReply;
+                insertReply = (EditText) ((Activity)context).findViewById(R.id.comment);
+                TaskUser taskUser = new TaskUser();
+                String idx;
+                String replyContent;
+                PHPRequestReply request = new PHPRequestReply(replyInsertUrlPath);
+
+                replyContent = insertReply.getText().toString();
+
+                userString = taskUser.execute("http://52.78.18.156/public/user_db.php").get();
+                taskUser.jsonParser(userString);
+
+                String[] userIdx = taskUser.idx.toArray(new String[taskUser.idx.size()]);
+                String[] userLink_id = taskUser.link_id.toArray(new String[taskUser.link_id.size()]);
+
+                int userLinearNum = userIdx.length;
+
+                for(int i = 0 ; i < userLinearNum ; i++){
+                    String val = userLink_id[i];
+                    if(val.contains(userId)){
+                        getLikeUserString = userIdx[i];
+                    }
+                }
+
+                if(replyContent.equals("")){
+                    Toast.makeText(context, "댓글을 입력 후 확인버튼을 눌러주세요", Toast.LENGTH_LONG).show();
+                }else {
+                    idx = item.getStrIdx();
+
+                    long now = System.currentTimeMillis();
+                    Date date = new Date(now);
+                    SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String formatDate = sdfNow.format(date);
+
+                    request.PhPtest(getLikeUserString, idx, replyContent, formatDate);
+                    Toast.makeText(context, "댓글을 남겼습니다", Toast.LENGTH_LONG).show();
+                    int getCntReply = Integer.parseInt(item.getStrPingReply());
+                    getCntReply++;
+                    holder.oTextReplyCnt.setText(String.valueOf(getCntReply));
+
+                    holder.reply.setVisibility(View.GONE);
+                    holder.replyView.setVisibility(View.GONE);
+
+                    //keyboard gone
+                    InputMethodManager mgr = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    mgr.hideSoftInputFromWindow(insertReply.getWindowToken(), 0);
+
+                    //Edittext initialize
+                    insertReply.setText("");
+                    insertReply.setHint("댓글을 입력해주세요");
+
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                }
+
+            }catch (MalformedURLException e){
+                e.printStackTrace();
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }catch (ExecutionException e){
+                e.printStackTrace();
+            }
+            }
+        });
+
+        holder.oButtonMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            if(holder.oFeedMap.getVisibility() == View.VISIBLE){
+                holder.oMap.setVisibility(View.GONE);
+                holder.oMapContainer.setVisibility(View.GONE);
+                holder.oFeedMap.setVisibility(View.GONE);
+            } else {
+                holder.oFeedMap.setVisibility(View.VISIBLE);
+                holder.oMap = new MapView(context);
+                holder.oMap.setVisibility(View.VISIBLE);
+                holder.oMapContainer.setVisibility(View.VISIBLE);
+                holder.oMapContainer.addView(holder.oMap);
+                holder.oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()), 1, true);
+                holder.oMap.removeAllPOIItems();
+                MapPOIItem customMarker = new MapPOIItem();
+                customMarker.setItemName("here");
+                customMarker.setTag(1);
+                customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()));
+                customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                customMarker.setCustomImageResourceId(R.drawable.marker_red);
+                customMarker.setShowCalloutBalloonOnTouch(false);
+                holder.oMap.addPOIItem(customMarker);
+
+                holder.reply.setVisibility(View.GONE);
+                holder.replyView.setVisibility(View.GONE);
+            }
+            }
+        });
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+                scrollDirection = dy;
+                distance+=dy;
+                Log.d("TAG", "onScrolled: " + dy);
+
+                if (dy > 0 && holder.oFeedMap.getVisibility() == View.VISIBLE) {
+                    // Scrolling up
+                    holder.oMap.startAnimation(animScaleAlpha);
+                    holder.oFeedMap.setVisibility(View.GONE);
+                    holder.oMapContainer.setVisibility(View.GONE);
+                    holder.oMap.setVisibility(View.GONE);
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+
+                } else if (dy <0 && holder.oFeedMap.getVisibility() == View.VISIBLE){
+                    // Scrolling down
+                    holder.oMap.startAnimation(animScaleAlpha);
+                    holder.oFeedMap.setVisibility(View.GONE);
+                    holder.oMapContainer.setVisibility(View.GONE);
+                    holder.oMap.setVisibility(View.GONE);
+
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                } else if(dy >0){
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                } else if(dy <0){
+                    holder.oTextReply.setTypeface(null, Typeface.NORMAL);
+                    holder.oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                }
+                if(distance > 25000){
+                    holder.reply.setVisibility(View.GONE);
+                    holder.replyView.setVisibility(View.GONE);
+                    //keyboard gone
+                    EditText insertReply;
+                    insertReply = (EditText) ((Activity)context).findViewById(R.id.comment);
+                    InputMethodManager mgr = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    mgr.hideSoftInputFromWindow(insertReply.getWindowToken(), 0);
+                } else if(distance < -25000){
+                    holder.reply.setVisibility(View.GONE);
+                    holder.replyView.setVisibility(View.GONE);
+                    //keyboard gone
+                    EditText insertReply;
+                    insertReply = (EditText) ((Activity)context).findViewById(R.id.comment);
+                    InputMethodManager mgr = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    mgr.hideSoftInputFromWindow(insertReply.getWindowToken(), 0);
+                }
+            }
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (scrollDirection > 0) {
+                        Log.d("TAG", "onScrollStateChanged: " + " STOPPED " + distance);
+                        distance = 0;
+                    } else {
+                        Log.d("TAG", "onScrollStateChanged: " + " STOPPED " + distance);
+                        distance = 0;
+                    }
+                }
+            }
+        });
+
+        Picasso.with(context)
+                .load(item.getStrThumbnailImage())
+                .fit()
+                .centerCrop()
+                .into(holder.oImageBanner);
+
+        Picasso.with(context)
+                .load(item.getStrUserImage())
+                .fit()
+                .centerCrop()
+                .into(holder.oImageUser);
+
+
+
+        if(item.getStrTitile().equals("shopping")){
+            holder.oFilterImage.setImageResource(R.drawable.shopping_off);
+        }else if(item.getStrTitile().equals("food")){
+            holder.oFilterImage.setImageResource(R.drawable.food_off);
+        }else if(item.getStrTitile().equals("animal")){
+            holder.oFilterImage.setImageResource(R.drawable.animal_off);
+        }else if(item.getStrTitile().equals("alcohol")){
+            holder.oFilterImage.setImageResource(R.drawable.alcohol_off);
+        }else if(item.getStrTitile().equals("cafe")){
+            holder.oFilterImage.setImageResource(R.drawable.cafe_off);
+        }else{
+            holder.oFilterImage.setImageResource(R.drawable.anything_off);
         }
-    }
 
-    public void setMoreLoading(boolean isMoreLoading) {
-        this.isMoreLoading=isMoreLoading;
-    }
 
-    public ItemData getItem(int position) {
-        return items.get(position);
     }
-
 
     @Override
     public int getItemCount() {
         return items.size();
     }
 
-    public void setProgressMore(final boolean isProgress) {
-        if (isProgress) {
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    items.add(null);
-                    notifyItemInserted(items.size() - 1);
-                }
-            });
-        } else {
-            items.remove(items.size() - 1);
-            notifyItemRemoved(items.size());
-        }
-    }
-
-    /*
-   View Holders
-   _________________________________________________________________________________________________
-    */
-
-    static class CardViewHolder extends RecyclerView.ViewHolder{
+    static class ViewHolder extends RecyclerView.ViewHolder{
         private TextView oTextLike;
         private TextView oTextShare;
         private TextView oTextReply;
@@ -604,7 +544,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         private ImageView oImageUser;
         private ImageView oFilterImage;
         private TextView oTextReplyCnt;
-        private TextView oTextTime;
         private FrameLayout oFeedMap;
         private ViewGroup oMapContainer;
         private MapView oMap;
@@ -612,9 +551,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         private Button replyBtn;
         private RecyclerView replyView;
 
-        CardViewHolder(View v) {
+        ViewHolder(View v) {
             super(v);
-
             oImageBanner = (ImageView)v.findViewById(R.id.bannerImage);
             oImageUser = (ImageView)v.findViewById(R.id.userImage);
             oButtonMap = (Button)v.findViewById(R.id.mapButton);
@@ -625,7 +563,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             oTextContent = (TextView)v.findViewById(R.id.contentText);
             oTextLikeCnt = (TextView)v.findViewById(R.id.likeCnt);
             oTextReplyCnt = (TextView)v.findViewById(R.id.replyCnt);
-            oTextTime = (TextView)v.findViewById(R.id.timeTxt);
             oFeedMap = (FrameLayout)v.findViewById(R.id.mapFrame);
             oMapContainer = (ViewGroup)v.findViewById(R.id.mapFeed);
             oFilterImage = (ImageView)v.findViewById(R.id.filterImage);
@@ -633,17 +570,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             replyView = (RecyclerView)v.findViewById(R.id.replyCard);
             replyBtn = (Button) v.findViewById(R.id.replyBtn);
 
-
-
         }
     }
-
-    static class ProgressViewHolder extends RecyclerView.ViewHolder {
-        private ProgressBar pBar;
-        ProgressViewHolder(View v) {
-            super(v);
-            pBar = (ProgressBar) v.findViewById(R.id.pBar);
-        }
-    }
-
 }
