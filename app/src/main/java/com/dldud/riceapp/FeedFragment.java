@@ -161,10 +161,7 @@ public class FeedFragment extends Fragment{
                     oItem.strPingReply = strReply;
                     oItem.strPingLike = strLike;
 
-                    if(feedIdxs.size() > 0)
-                        oItem.bActiveMap = false;
-
-                        oData.add(oItem);
+                    oData.add(oItem);
 
                 }
             }
@@ -178,7 +175,6 @@ public class FeedFragment extends Fragment{
         layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-
         oAdapter = new FeedAdapter(getActivity(), oData);
 
         recyclerView.setAdapter(oAdapter);
