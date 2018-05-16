@@ -52,15 +52,16 @@ import static com.dldud.riceapp.UserProfileSettingActivity.userId;
 public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
     Context context;
+    private String replyString;
 
     private ArrayList<ReplyItemData> rData;
 
     int distance =0;
     int scrollDirection;
+    private boolean activeMap = true;
 
     private ReplyAdapter rAdapter;
     private String getLikeUserString;
-    private String replyString;
     private String userString;
     private String likeString;
     private String imgUrl = "http://52.78.18.156/data/riceapp/";
@@ -80,6 +81,11 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     public void add(ItemData data){
         items.add(data);
         notifyDataSetChanged();
+    }
+
+    public void setMap(boolean b)
+    {
+        activeMap = b;
     }
 
     @Override
@@ -400,36 +406,40 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             }
         });
 
-        holder.oButtonMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            if(holder.oFeedMap.getVisibility() == View.VISIBLE){
-                holder.oMap.setVisibility(View.GONE);
-                holder.oMapContainer.setVisibility(View.GONE);
-                holder.oFeedMap.setVisibility(View.GONE);
-            } else {
-                holder.oFeedMap.setVisibility(View.VISIBLE);
-                holder.oMap = new MapView(context);
-                holder.oMap.setVisibility(View.VISIBLE);
-                holder.oMapContainer.setVisibility(View.VISIBLE);
-                holder.oMapContainer.addView(holder.oMap);
-                holder.oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()), 1, true);
-                holder.oMap.removeAllPOIItems();
-                MapPOIItem customMarker = new MapPOIItem();
-                customMarker.setItemName("here");
-                customMarker.setTag(1);
-                customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()));
-                customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-                customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
-                customMarker.setCustomImageResourceId(R.drawable.marker_red);
-                customMarker.setShowCalloutBalloonOnTouch(false);
-                holder.oMap.addPOIItem(customMarker);
+        if(item.getActiveMap()) {
+            holder.oButtonMap.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (holder.oFeedMap.getVisibility() == View.VISIBLE) {
+                        holder.oMap.setVisibility(View.GONE);
+                        holder.oMapContainer.setVisibility(View.GONE);
+                        holder.oFeedMap.setVisibility(View.GONE);
+                    } else {
+                        holder.oFeedMap.setVisibility(View.VISIBLE);
+                        holder.oMap = new MapView(context);
+                        holder.oMap.setVisibility(View.VISIBLE);
+                        holder.oMapContainer.setVisibility(View.VISIBLE);
+                        holder.oMapContainer.addView(holder.oMap);
+                        holder.oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()), 1, true);
+                        holder.oMap.removeAllPOIItems();
+                        MapPOIItem customMarker = new MapPOIItem();
+                        customMarker.setItemName("here");
+                        customMarker.setTag(1);
+                        customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()));
+                        customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                        customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                        customMarker.setCustomImageResourceId(R.drawable.marker_red);
+                        customMarker.setShowCalloutBalloonOnTouch(false);
+                        holder.oMap.addPOIItem(customMarker);
 
-                holder.reply.setVisibility(View.GONE);
-                holder.replyView.setVisibility(View.GONE);
-            }
-            }
-        });
+                        holder.reply.setVisibility(View.GONE);
+                        holder.replyView.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
+        else
+            holder.oButtonMap.setVisibility(View.GONE);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
