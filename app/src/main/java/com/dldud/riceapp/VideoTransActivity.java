@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,6 +38,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
+
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
 
 import static com.dldud.riceapp.CameraFragment.videofilename;
 import static com.dldud.riceapp.MainActivity.navigation;
@@ -50,6 +55,7 @@ public class VideoTransActivity extends AppCompatActivity {
     final String uploadFilePath = "storage/emulated/0/LIS/";
     final String uploadFileNameVideo = videofilename + ".mp4";
     final String uploadFileNameThumbnail = videofilename + ".jpg";
+    //GifImageView gif;
     String filter;
     RadioGroup rg;
     String vidContent;
@@ -74,6 +80,8 @@ public class VideoTransActivity extends AppCompatActivity {
 
         setText = (EditText)findViewById(R.id.vidContent);
         vidCheck = (CheckBox)findViewById(R.id.vidAnonCheck);
+        //gif = (GifImageView)findViewById(R.id.loadImg);
+
 
         rg = (RadioGroup)findViewById(R.id.filterVidGroup);
 
@@ -124,19 +132,22 @@ public class VideoTransActivity extends AppCompatActivity {
     View.OnClickListener sendTrans = new View.OnClickListener(){
         @Override
         public void onClick(View v) {
-            MapPoint.GeoCoordinate mapPointGeo = mapViewFix.getMapCenterPoint().getMapPointGeoCoord();
-            latitude = mapPointGeo.latitude;
-            longitude = mapPointGeo.longitude;
 
-            int id = rg.getCheckedRadioButtonId();
+                MapPoint.GeoCoordinate mapPointGeo = mapViewFix.getMapCenterPoint().getMapPointGeoCoord();
+                latitude = mapPointGeo.latitude;
+                longitude = mapPointGeo.longitude;
 
-            RadioButton rb = (RadioButton)findViewById(id);
-            filter = rb.getResources().getResourceEntryName(rb.getId());
+                int id = rg.getCheckedRadioButtonId();
+
+                RadioButton rb = (RadioButton) findViewById(id);
+                filter = rb.getResources().getResourceEntryName(rb.getId());
 
 
-            vidContent = setText.getText().toString();
+                vidContent = setText.getText().toString();
 
-            dialog = ProgressDialog.show(VideoTransActivity.this,"","파일을 업로드 중입니다...",true);
+                dialog = ProgressDialog.show(VideoTransActivity.this, "", "파일을 업로드 중입니다...", true);
+
+
 
             new Thread(new Runnable(){
                 @Override
