@@ -118,8 +118,7 @@
                 android:id="@+id/alcohol"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:button="@drawable/alcohol_radio"
-                />
+                android:button="@drawable/alcohol_radio" />
 
         </RadioGroup>
     </LinearLayout>
@@ -154,6 +153,16 @@
         android:layout_weight="1"
         android:background="@drawable/insert_btn"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/loadImg"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 
