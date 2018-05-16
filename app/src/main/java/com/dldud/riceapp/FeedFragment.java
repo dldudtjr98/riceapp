@@ -325,6 +325,8 @@ public class FeedFragment extends Fragment implements FeedAdapter.OnLoadMoreList
                 }
             }
             //////////////////////////////////////////////////
+            if(feedIdxs.size() > 0)
+                oAdapter.setShowMap(false);
             oAdapter.addItemMore(oData);
             oAdapter.setMoreLoading(false);
             }

@@ -21,6 +21,7 @@ public class ItemData {
     String strContent;
     String strTitile;
     String strTime;
+    boolean bActiveMap = false;
     double douLatitude;
     double douLongitude;
 
@@ -28,6 +29,15 @@ public class ItemData {
     private String strAddress = null;
     private MapReverseGeoCoder reverseGeoCoder = null;
 
+    public boolean getActiveMap()
+    {
+        return bActiveMap;
+    }
+
+    public void setbActivemap(boolean b)
+    {
+        bActiveMap = b;
+    }
 
     int getiMarkerIndex() {
         return iMarkerIndex;

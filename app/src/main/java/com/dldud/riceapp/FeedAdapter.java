@@ -84,6 +84,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private LinearLayoutManager layoutManager;
     private LinearLayoutManager replyLayoutManager;
 
+    private boolean isShowMap = true;
+
+    public boolean isShowMap() {
+        return isShowMap;
+    }
+
+    public void setShowMap(boolean showMap) {
+        isShowMap = showMap;
+    }
+
     public interface OnLoadMoreListener{
         void onLoadMore();
     }
@@ -468,33 +478,40 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 }
             });
 
-            ((CardViewHolder) holder).oButtonMap.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                if(((CardViewHolder) holder).oFeedMap.getVisibility() == View.VISIBLE) {
-                    ((CardViewHolder) holder).oFeedMap.setVisibility(View.GONE);
-                    ((CardViewHolder) holder).oMap.setVisibility(View.GONE);
-                    ((CardViewHolder) holder).oMapContainer.setVisibility(View.GONE);
-                }else {
-                    ((CardViewHolder) holder).oFeedMap.setVisibility(View.VISIBLE);
-                    ((CardViewHolder) holder).oMap = new MapView(context);
-                    ((CardViewHolder) holder).oMap.setVisibility(View.VISIBLE);
-                    ((CardViewHolder) holder).oMapContainer.setVisibility(View.VISIBLE);
-                    ((CardViewHolder) holder).oMapContainer.addView(((CardViewHolder) holder).oMap);
-                    ((CardViewHolder) holder).oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()), 1, true);
-                    ((CardViewHolder) holder).oMap.removeAllPOIItems();
-                    MapPOIItem customMarker = new MapPOIItem();
-                    customMarker.setItemName("here");
-                    customMarker.setTag(1);
-                    customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()));
-                    customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-                    customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
-                    customMarker.setCustomImageResourceId(R.drawable.marker_red);
-                    customMarker.setShowCalloutBalloonOnTouch(false);
-                    ((CardViewHolder) holder).oMap.addPOIItem(customMarker);
-                }
-                }
-            });
+            if(isShowMap) {
+                ((CardViewHolder) holder).oButtonMap.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (((CardViewHolder) holder).oFeedMap.getVisibility() == View.VISIBLE) {
+                            ((CardViewHolder) holder).oFeedMap.setVisibility(View.GONE);
+                            ((CardViewHolder) holder).oMap.setVisibility(View.GONE);
+                            ((CardViewHolder) holder).oMapContainer.setVisibility(View.GONE);
+                        } else {
+                            ((CardViewHolder) holder).oFeedMap.setVisibility(View.VISIBLE);
+                            ((CardViewHolder) holder).oMap = new MapView(context);
+                            ((CardViewHolder) holder).oMap.setVisibility(View.VISIBLE);
+                            ((CardViewHolder) holder).oMapContainer.setVisibility(View.VISIBLE);
+                            ((CardViewHolder) holder).oMapContainer.addView(((CardViewHolder) holder).oMap);
+                            ((CardViewHolder) holder).oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()), 1, true);
+                            ((CardViewHolder) holder).oMap.removeAllPOIItems();
+                            MapPOIItem customMarker = new MapPOIItem();
+                            customMarker.setItemName("here");
+                            customMarker.setTag(1);
+                            customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()));
+                            customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                            customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                            customMarker.setCustomImageResourceId(R.drawable.marker_red);
+                            customMarker.setShowCalloutBalloonOnTouch(false);
+                            ((CardViewHolder) holder).oMap.addPOIItem(customMarker);
+                        }
+                    }
+                });
+            }
+            else
+            {
+                ((CardViewHolder) holder).oButtonMap.setVisibility(View.GONE);
+                ((CardViewHolder) holder).oFeedMap.setVisibility(View.GONE);
+            }
 
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
