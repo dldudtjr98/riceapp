@@ -23,6 +23,9 @@ import java.io.FileInputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import static com.dldud.riceapp.CameraFragment.picturefilename;
@@ -43,10 +46,6 @@ public class PictureTransActivity extends AppCompatActivity {
     MapView mapViewFix;
     CheckBox picCheck;
     String UserId;
-
-
-
-    private GPSInfo gps;
 
     ProgressDialog dialog = null;
 
@@ -77,7 +76,7 @@ public class PictureTransActivity extends AppCompatActivity {
 
         upLoadServerUri = "http://52.78.18.156/public/UploadToServer.php";
 
-        gps = new GPSInfo(PictureTransActivity.this);
+        GPSInfo gps = new GPSInfo(PictureTransActivity.this);
         //GPS 사용유무
         if(gps.isGetLocation()){
             latitude = gps.getLatitude();
@@ -138,8 +137,13 @@ public class PictureTransActivity extends AppCompatActivity {
                     UserId = userId;
                 }
 
+                long now = System.currentTimeMillis();
+                Date date = new Date(now);
+                SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+                String formatDate = sdfNow.format(date);
+
                 PHPRequest request = new PHPRequest(insertUrlPath);
-                String result = request.PhPtest(UserId,filter ,uploadFileName, uploadFileName, picContent, locationLat, locationLong);
+                String result = request.PhPtest(UserId,filter ,uploadFileName, uploadFileName, picContent, locationLat, locationLong, formatDate);
                 if(result.equals("1")){
                     Toast.makeText(getApplication(),"전송완료",Toast.LENGTH_SHORT).show();
                 } else {

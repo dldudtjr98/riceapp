@@ -31,6 +31,9 @@ import java.io.FileOutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 
@@ -54,10 +57,6 @@ public class VideoTransActivity extends AppCompatActivity {
     MapView mapViewFix;
     String UserId;
     CheckBox vidCheck;
-
-
-
-    private GPSInfo gps;
 
     ProgressDialog dialog = null;
 
@@ -90,7 +89,7 @@ public class VideoTransActivity extends AppCompatActivity {
 
         upLoadServerUri = "http://52.78.18.156/public/UploadToServer.php";
 
-        gps = new GPSInfo(VideoTransActivity.this);
+        GPSInfo gps = new GPSInfo(VideoTransActivity.this);
         //GPS 사용유무
         if(gps.isGetLocation()){
             latitude = gps.getLatitude();
@@ -164,8 +163,13 @@ public class VideoTransActivity extends AppCompatActivity {
                     UserId = userId;
                 }
 
+                long now = System.currentTimeMillis();
+                Date date = new Date(now);
+                SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+                String formatDate = sdfNow.format(date);
+
                 PHPRequest request = new PHPRequest(insertUrlPath);
-                String result = request.PhPtest(UserId, filter ,uploadFileNameVideo, uploadFileNameThumbnail, vidContent, locationLat, locationLong);
+                String result = request.PhPtest(UserId, filter ,uploadFileNameVideo, uploadFileNameThumbnail, vidContent, locationLat, locationLong, formatDate);
                 if(result.equals("1")){
                     Toast.makeText(getApplication(),"전송완료",Toast.LENGTH_SHORT).show();
                 } else {

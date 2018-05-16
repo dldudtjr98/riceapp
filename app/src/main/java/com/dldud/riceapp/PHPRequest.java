@@ -1,6 +1,5 @@
 package com.dldud.riceapp;
 
-import android.content.ContentValues;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -11,7 +10,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
 
 /**
  * Created by dldud on 2018-03-25.
@@ -34,9 +32,9 @@ public class PHPRequest {
         return jsonHtml.toString();
     }
 
-    public String PhPtest( final String data2,final String data3, final String data4, final String data5, final String data6, final String data7, final String data8) {
+    public String PhPtest( final String data2,final String data3, final String data4, final String data5, final String data6, final String data7, final String data8, final String data9) {
         try {
-            String postData =  "writer_id="+ data2 +"&" + "title=" + data3 + "&" + "banner=" + data4 +"&" + "thumbnail=" + data5 +"&"+ "content=" + data6 + "&"+ "locationlat=" + data7 +"&"+"locationlong=" +data8;
+            String postData =  "writer_id="+ data2 +"&" + "title=" + data3 + "&" + "banner=" + data4 +"&" + "thumbnail=" + data5 +"&"+ "content=" + data6 + "&"+ "locationlat=" + data7 +"&"+"locationlong=" +data8 +"&" +"create_date=" +data9;
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestMethod("POST");
