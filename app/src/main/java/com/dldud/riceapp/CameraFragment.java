@@ -9,36 +9,26 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.OrientationEventListener;
-import android.view.Surface;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewManager;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -56,7 +46,7 @@ import static com.dldud.riceapp.MainActivity.navigation;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CameraFragment extends Fragment{
+public class CameraFragment extends Fragment implements SensorEventListener{
 
     static String picturefilename;
     static String videofilename;
@@ -75,13 +65,21 @@ public class CameraFragment extends Fragment{
     };
 
     private static Context myContext;
-    private Camera mCamera;
+    private static Camera mCamera;
     private CameraPreview mPreview;
 
     private MediaRecorder recorder;
     private Button captureBtn;
     private Button recordBtn;
     private String folderPath;
+    public static CameraFragment getInstance;
+    private static CameraPreview surfaceView;
+
+    private SurfaceHolder mHolder;
+
+    private SensorManager mSensorManager;
+    private Sensor mAccSensor;
+    private float mDegrees;
 
     public CameraFragment() {
         // Required empty public constructor
@@ -96,12 +94,22 @@ public class CameraFragment extends Fragment{
         Button gotoFeed;
         Button gotoMap;
 
+        mSensorManager = (SensorManager)getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mAccSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_UI);
+
+        mDegrees = 0;
+
+
         if (Build.VERSION.SDK_INT >= 23){
             checkPermissions();
         }
 
+        getInstance = this;
         folderPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         createFolder();
+
+        mCamera = Camera.open();
 
         LinearLayout camera_preview;
         camera_preview = (LinearLayout) v.findViewById(R.id.camera_preview);
@@ -109,6 +117,7 @@ public class CameraFragment extends Fragment{
         camera_preview.addView(mPreview);
         mCamera = Camera.open();
         mPreview.refreshCamera(mCamera);
+
 
         recordBtn = (Button) v.findViewById(R.id.recordBtn);
         recordBtn.setOnClickListener(videoListener);
@@ -121,7 +130,7 @@ public class CameraFragment extends Fragment{
         gotoFeed.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                navigation.setSelectedItemId(R.id.navigation_feed);
+            navigation.setSelectedItemId(R.id.navigation_feed);
             }
         });
 
@@ -130,9 +139,21 @@ public class CameraFragment extends Fragment{
             @Override
             public void onClick(View v) {
                 navigation.setSelectedItemId(R.id.navigation_map);
+
             }
         });
         return v;
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSensorManager.unregisterListener(this);
+    }
+
+    public static Camera getCamera(){
+        return mCamera;
     }
 
     View.OnClickListener captureListener = new View.OnClickListener(){
@@ -289,10 +310,19 @@ public class CameraFragment extends Fragment{
         public void onPictureTaken(byte[] data, Camera camera) {
         Bitmap bitmapPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
 
-        String jpgRoute = "/storage/emulated/0/lis/"+ picturefilename + ".jpg";
+        String jpgRoute = "/storage/emulated/0/LIS/"+ picturefilename + ".jpg";
         File copyFile = new File(jpgRoute);
+
         final Matrix matrix = new Matrix();
-        matrix.postRotate(90);
+        if(mDegrees == 0) { //왼쪽으로 가로90도
+            matrix.postRotate(0);
+        } else if(mDegrees == 90){ //거꾸로 들기
+            matrix.postRotate(-90);
+        } else if(mDegrees == 180){ //오른쪽으로 가로90도
+            matrix.postRotate(-180);
+        } else if(mDegrees == -90){ //원점
+            matrix.postRotate(-270);
+        }
         bitmapPicture = Bitmap.createBitmap(bitmapPicture,0,0, bitmapPicture.getWidth(), bitmapPicture.getHeight(), matrix, true);
 
         try {
@@ -332,6 +362,31 @@ public class CameraFragment extends Fragment{
         return GetName;
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        switch(event.sensor.getType()) {
+
+            case Sensor.TYPE_ACCELEROMETER:
+
+                float x = event.values[0];
+                float y = event.values[1];
+
+                if(x > 5 && y < 5)
+                    mDegrees = 0;    //세로로 슴
+                else if(x < -5 && y > -5)
+                    mDegrees = 180;  //세로로 뒤집힘
+                else if(x > -5 && y > 5)
+                    mDegrees = -90;  //가로 왼쪽으로 눞힘
+                else if(x < 5 && y < -5)
+                    mDegrees = 90;   //가로 오른쪽으로 눞힘
+                break;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 }
 
 

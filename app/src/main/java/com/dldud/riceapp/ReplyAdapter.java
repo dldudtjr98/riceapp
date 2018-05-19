@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -47,10 +49,9 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ViewHolder> 
         holder.oTextTime.setText(item.getStrReplyTime());
         holder.oTextContent.setText(item.getStrReplyContent());
 
-        Picasso.with(context)
+        Glide.with(context)
                 .load(item.getStrReplyUserImage())
-                .fit()
-                .centerCrop()
+                .apply(new RequestOptions().circleCropTransform())
                 .into(holder.oUserImage);
     }
 

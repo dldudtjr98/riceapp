@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -32,12 +33,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.kakao.usermgmt.response.model.UserProfile;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
+import net.daum.mf.map.api.CameraUpdateFactory;
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
+import net.daum.mf.map.api.MapPointBounds;
+import net.daum.mf.map.api.MapPolyline;
 import net.daum.mf.map.api.MapView;
 
 import java.lang.reflect.Array;
@@ -79,6 +84,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private boolean isMoreLoading = false;
     private int visibleThreshold = 1;
+    private double latitude,longitude;
 
     private OnLoadMoreListener onLoadMoreListener;
     private LinearLayoutManager layoutManager;
@@ -112,19 +118,19 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         mView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int firstVisibleItem, visibleItemCount, totalItemCount, lastVisibleItem;
-                visibleItemCount = recyclerView.getChildCount();
-                totalItemCount = layoutManager.getItemCount();
-                firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
-                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+            super.onScrolled(recyclerView, dx, dy);
+            int firstVisibleItem, visibleItemCount, totalItemCount, lastVisibleItem;
+            visibleItemCount = recyclerView.getChildCount();
+            totalItemCount = layoutManager.getItemCount();
+            firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+            lastVisibleItem = layoutManager.findLastVisibleItemPosition();
 
-                if (!isMoreLoading && (totalItemCount - visibleItemCount)<= (firstVisibleItem + visibleThreshold)) {
-                    if (onLoadMoreListener != null) {
-                        onLoadMoreListener.onLoadMore();
-                    }
-                    isMoreLoading = true;
+            if (!isMoreLoading && (totalItemCount - visibleItemCount)<= (firstVisibleItem + visibleThreshold)) {
+                if (onLoadMoreListener != null) {
+                    onLoadMoreListener.onLoadMore();
                 }
+                isMoreLoading = true;
+            }
             }
         });
     }
@@ -192,7 +198,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             ((CardViewHolder) holder).oTextTime.setText(item.getStrTime());
 
             ((CardViewHolder) holder).reply.setVisibility(View.GONE);
-            ((CardViewHolder) holder).replyView.setVisibility(View.GONE);
             ((CardViewHolder) holder).oFeedMap.setVisibility(View.GONE);
             ((CardViewHolder) holder).oMapContainer.setVisibility(View.GONE);
 
@@ -270,10 +275,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                             getCnt++;
                             ((CardViewHolder) holder).oTextLikeCnt.setText(String.valueOf(getCnt));
                         }
-
-                        ((CardViewHolder) holder).reply.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).replyView.setVisibility(View.GONE);
-
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (ExecutionException e) {
@@ -290,20 +291,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     Toast.makeText(context, "공유기능은 아직 지원하지 않습니다", Toast.LENGTH_LONG).show();
                 }
             });
-            ((CardViewHolder) holder).oTextReply.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(context, "댓글기능은 아직 지원하지 않습니다", Toast.LENGTH_LONG).show();
-                }
-            });
 
-/*
             ((CardViewHolder) holder).oTextReply.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     try {
                         ((CardViewHolder) holder).reply.setVisibility(View.VISIBLE);
-                        ((CardViewHolder) holder).replyView.setVisibility(View.VISIBLE);
                         ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.BOLD);
                         ((CardViewHolder) holder).oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
 
@@ -346,10 +339,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                                     }
                                 }
                                 rData.add(rItem);
-                                notifyDataSetChanged();
+
                             }
                         }
-
                         replyLayoutManager = new LinearLayoutManager(context);
                         replyLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
                         ((CardViewHolder) holder).replyView.setLayoutManager(replyLayoutManager);
@@ -364,7 +356,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 }
             });
 
-*/
+
             ((CardViewHolder) holder).oImageBanner.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -379,7 +371,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                         wv.loadUrl("http://52.78.18.156/public/playVideo.php?video=" + name + "&type=" + type);
 
                         ((CardViewHolder) holder).reply.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).replyView.setVisibility(View.GONE);
                         ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.NORMAL);
                     } else {
                         pictureBack.setVisibility(View.VISIBLE);
@@ -392,7 +383,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                                 .into(detailImage);
 
                         ((CardViewHolder) holder).reply.setVisibility(View.GONE);
-                        ((CardViewHolder) holder).replyView.setVisibility(View.GONE);
                         ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.NORMAL);
                     }
                 }
@@ -464,6 +454,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                         insertReply.setText("");
                         insertReply.setHint("댓글을 입력해주세요");
 
+                        ((CardViewHolder) holder).reply.setVisibility(View.GONE);
                         ((CardViewHolder) holder).oTextReply.setTypeface(null, Typeface.NORMAL);
                         ((CardViewHolder) holder).oTextReply.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
                     }
@@ -492,17 +483,49 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                             ((CardViewHolder) holder).oMap.setVisibility(View.VISIBLE);
                             ((CardViewHolder) holder).oMapContainer.setVisibility(View.VISIBLE);
                             ((CardViewHolder) holder).oMapContainer.addView(((CardViewHolder) holder).oMap);
-                            ((CardViewHolder) holder).oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()), 1, true);
+                            //((CardViewHolder) holder).oMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()), 1, true);
+
+
+                            MapPolyline polyline = new MapPolyline();
+                            polyline.setLineColor(Color.argb(128,255,51,0));
+
+                            GPSInfo gps = new GPSInfo(context);
+                            //GPS 사용유무
+                            if(gps.isGetLocation()){
+                                latitude = gps.getLatitude();
+                                longitude = gps.getLongitude();
+                            } else {
+                                gps.showSettingsAlert();
+                            }
+
+                            polyline.addPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()));
+                            polyline.addPoint(MapPoint.mapPointWithGeoCoord(latitude,longitude));
+                            ((CardViewHolder) holder).oMap.addPolyline(polyline);
+
+                            MapPointBounds mapPointBounds = new MapPointBounds(polyline.getMapPoints());
+                            int padding = 100;
+                            ((CardViewHolder) holder).oMap.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds, padding));
+
                             ((CardViewHolder) holder).oMap.removeAllPOIItems();
-                            MapPOIItem customMarker = new MapPOIItem();
-                            customMarker.setItemName("here");
-                            customMarker.setTag(1);
-                            customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()));
-                            customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-                            customMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
-                            customMarker.setCustomImageResourceId(R.drawable.marker_red);
-                            customMarker.setShowCalloutBalloonOnTouch(false);
-                            ((CardViewHolder) holder).oMap.addPOIItem(customMarker);
+                            MapPOIItem customMarker_d = new MapPOIItem();
+                            customMarker_d.setItemName("here");
+                            customMarker_d.setTag(1);
+                            customMarker_d.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getDouLatitude(), item.getDouLongitude()));
+                            customMarker_d.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                            customMarker_d.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                            customMarker_d.setCustomImageResourceId(R.drawable.marker_red);
+                            customMarker_d.setShowCalloutBalloonOnTouch(false);
+
+                            MapPOIItem customMarker_my = new MapPOIItem();
+                            customMarker_my.setItemName("here");
+                            customMarker_my.setTag(2);
+                            customMarker_my.setMapPoint(MapPoint.mapPointWithGeoCoord(latitude,longitude));
+                            customMarker_my.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                            customMarker_my.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                            customMarker_my.setCustomImageResourceId(R.drawable.marker_red);
+                            customMarker_my.setShowCalloutBalloonOnTouch(false);
+                            ((CardViewHolder) holder).oMap.addPOIItem(customMarker_d);
+                            ((CardViewHolder) holder).oMap.addPOIItem(customMarker_my);
                         }
                     }
                 });
@@ -543,19 +566,33 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     }
                 }
             });
-
+/*
             Picasso.with(context)
                     .load(item.getStrThumbnailImage())
                     .fit()
                     .centerCrop()
                     .placeholder(R.drawable.loading_img)
                     .into(((CardViewHolder) holder).oImageBanner);
-
+*/
+/*
             Picasso.with(context)
                     .load(item.getStrUserImage())
                     .fit()
                     .centerCrop()
                     .into(((CardViewHolder) holder).oImageUser);
+   */
+
+
+            Glide.with(context)
+                    .load(item.getStrUserImage())
+                    .apply(new RequestOptions().circleCropTransform())
+                    .into(((CardViewHolder)holder).oImageUser);
+
+            Glide.with(context)
+                    .load(item.getStrThumbnailImage())
+                    .apply(new RequestOptions().fitCenter())
+                    .apply(new RequestOptions().placeholder(R.drawable.loading_img))
+                    .into(((CardViewHolder)holder).oImageBanner);
 
 
             if (item.getStrTitile().equals("shopping")) {

@@ -6,10 +6,10 @@ package com.dldud.riceapp;
 
 public class ReplyItemData {
 
-    private String strReplyUserName;
-    private String strReplyTime;
-    private String strReplyContent;
-    private String strReplyUserImage;
+    String strReplyUserName;
+    String strReplyTime;
+    String strReplyContent;
+    String strReplyUserImage;
 
     String getStrReplyUserName(){
         return strReplyUserName;

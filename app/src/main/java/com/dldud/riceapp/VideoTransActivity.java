@@ -348,15 +348,11 @@ public class VideoTransActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.d("dialog", "called onDestroy");
-        dialog.dismiss();
         super.onDestroy();
+        if(dialog != null) {
+            dialog.dismiss();
+        }
     }
 
 
-    @Override
-    protected void onDestroy() {
-        Log.d("dialog", "called onDestroy");
-        dialog.dismiss();
-        super.onDestroy();
-    }
 }

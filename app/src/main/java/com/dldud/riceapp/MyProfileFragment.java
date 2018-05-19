@@ -14,6 +14,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
@@ -164,12 +166,19 @@ public class MyProfileFragment extends Fragment {
         }catch(ExecutionException e){
             e.printStackTrace();
         }
-
+/*
         Picasso.with(getContext())
                 .load(userImg)
                 .fit()
                 .centerCrop()
                 .into(profileImage);
+*/
+
+        Glide.with(getContext())
+                .load(userImg)
+                .apply(new RequestOptions().circleCropTransform())
+                .into(profileImage);
+
 
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override

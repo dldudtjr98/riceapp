@@ -26,8 +26,13 @@
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <data android:scheme="@string/kakao_scheme"
+                    android:host="@string/kakaolink_host" />
             </intent-filter>
         </activity>
 
@@ -44,14 +49,20 @@
         <activity
             android:name="com.nhn.android.naverlogin.ui.OAuthLoginInAppBrowserActivity"
             android:label="OAuth2.0 In-app" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".MakePingActivity" />
-        <activity android:name=".VideoHolderActivity" />
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".MakePingActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".VideoHolderActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".PictureHolderActivity"
-            android:configChanges="keyboardHidden|orientation" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".UserProfileSettingActivity" />
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".LoginActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".UserProfileSettingActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".MapDialog"
             android:screenOrientation="portrait"
@@ -59,9 +70,12 @@
         <activity
             android:name=".KakaoSignupActivity"
             android:label="@string/title_activity_kakao_sighnup"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".PictureTransActivity" />
-        <activity android:name=".VideoTransActivity" />
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".PictureTransActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".VideoTransActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".FeedDialog"
             android:screenOrientation="portrait"

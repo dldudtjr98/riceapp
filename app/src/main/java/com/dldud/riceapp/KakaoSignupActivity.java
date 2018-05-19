@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.kakao.auth.ApiResponseCallback;
 import com.kakao.auth.ErrorCode;
 import com.kakao.network.ErrorResult;
 import com.kakao.usermgmt.ApiErrorCode;
@@ -15,6 +16,7 @@ import com.kakao.usermgmt.response.model.UserProfile;
 import com.kakao.util.helper.log.Logger;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 
 public class KakaoSignupActivity extends BaseActivity {
@@ -29,6 +31,32 @@ public class KakaoSignupActivity extends BaseActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestMe();
+    }
+
+
+    private void requestSignUp(final Map<String, String> properties) {
+        UserManagement.getInstance().requestSignup(new ApiResponseCallback<Long>() {
+            @Override
+            public void onNotSignedUp() {
+            }
+
+            @Override
+            public void onSuccess(Long result) {
+                requestMe();
+            }
+
+            @Override
+            public void onFailure(ErrorResult errorResult) {
+                final String message = "UsermgmtResponseCallback : failure : " + errorResult;
+                com.kakao.util.helper.log.Logger.w(message);
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                finish();
+            }
+
+            @Override
+            public void onSessionClosed(ErrorResult errorResult) {
+            }
+        }, properties);
     }
 
     /**
