@@ -353,6 +353,4 @@ public class VideoTransActivity extends AppCompatActivity {
             dialog.dismiss();
         }
     }
-
-
 }
