@@ -42,6 +42,7 @@ public class MyProfileFragment extends Fragment {
     TaskUser taskUser = new TaskUser();
     TaskLike taskLike = new TaskLike();
     Task taskPing = new Task();
+    private int targetUser = 0;
 
     ArrayList<Integer> myLike = new ArrayList<>();
     ArrayList<Integer> myPing = new ArrayList<>();
@@ -202,5 +203,13 @@ public class MyProfileFragment extends Fragment {
         return v;
     }
 
+    public void setTargetUser(int t)
+    {
+        targetUser = t;
+    }
 
+    public int getTargetUser()
+    {
+        return targetUser;
+    }
 }

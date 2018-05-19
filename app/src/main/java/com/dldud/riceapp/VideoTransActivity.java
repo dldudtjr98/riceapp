@@ -39,9 +39,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 
-import pl.droidsonroids.gif.GifDrawable;
-import pl.droidsonroids.gif.GifImageView;
-
 import static com.dldud.riceapp.CameraFragment.videofilename;
 import static com.dldud.riceapp.MainActivity.navigation;
 import static com.dldud.riceapp.UserProfileSettingActivity.userId;
@@ -344,14 +341,6 @@ public class VideoTransActivity extends AppCompatActivity {
         }
 
     }//se
-
-    @Override
-    protected void onDestroy() {
-        Log.d("dialog", "called onDestroy");
-        dialog.dismiss();
-        super.onDestroy();
-    }
-
 
     @Override
     protected void onDestroy() {
