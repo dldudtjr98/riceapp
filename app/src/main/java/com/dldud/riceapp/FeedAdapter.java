@@ -516,6 +516,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
 
 
+
+
         if(item.getStrTitile().equals("shopping")){
             holder.oFilterImage.setImageResource(R.drawable.shopping_off);
         }else if(item.getStrTitile().equals("food")){
