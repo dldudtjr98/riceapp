@@ -31,7 +31,7 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
     String myString;
     double latitude, longitude;
     int j;
-    Button animal, alchohol, anything, shopping, dining, drink;
+    Button animal, alchohol, anything, shopping, dining, drink , feedback;
     String[] buttonString = {"animal", "alcohol", "shopping", "anything", "drink", "dining"};
     ArrayList<Button> buttons = new ArrayList<>();
     String filter = null;
@@ -79,6 +79,15 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
             e.printStackTrace();
         }
 
+        feedback = (Button)v.findViewById(R.id.feedbackBtn);
+
+
+        feedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getContext(), FeedBackDialog.class));
+            }
+        });
 
         animal = (Button)v.findViewById(R.id.animal);
         buttons.add(animal);
@@ -97,12 +106,13 @@ public class MapFragment extends Fragment implements MapView.MapViewEventListene
         mapDialog.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                animal.setVisibility(View.VISIBLE);
-                alchohol.setVisibility(View.VISIBLE);
-                shopping.setVisibility(View.VISIBLE);
-                anything.setVisibility(View.VISIBLE);
-                drink.setVisibility(View.VISIBLE);
-                dining.setVisibility(View.VISIBLE);
+                if(animal.getVisibility() == View.GONE) {
+                    for(Button b : buttons)
+                        b.setVisibility(View.VISIBLE);
+                }
+                else
+                    for(Button b : buttons)
+                        b.setVisibility(View.GONE);
                 //startActivity(new Intent(getActivity(),MapDialog.class));
             }
         });

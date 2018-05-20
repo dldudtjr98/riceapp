@@ -70,6 +70,7 @@ import java.util.concurrent.ExecutionException;
 import android.os.Handler;
 import java.util.logging.LogRecord;
 
+import static com.dldud.riceapp.MainActivity.navigation;
 import static com.dldud.riceapp.UserProfileSettingActivity.userId;
 
 /**
@@ -649,6 +650,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     .load(item.getStrUserImage())
                     .apply(new RequestOptions().circleCropTransform())
                     .into(((CardViewHolder)holder).oImageUser);
+
+            ((CardViewHolder) holder).oImageUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    navigation.setTag(item.strUserId);
+                    navigation.setSelectedItemId(R.id.navigation_myProfile);
+                }
+            });
 
             Glide.with(context)
                     .load(item.getStrThumbnailImage())

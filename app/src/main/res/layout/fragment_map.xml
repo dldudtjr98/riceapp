@@ -8,7 +8,7 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/fix"
+        android:id="@+id/feedbackBtn"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentEnd="true"

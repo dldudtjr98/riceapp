@@ -45,6 +45,7 @@ public class MyProfileFragment extends Fragment {
     TaskLike taskLike = new TaskLike();
     Task taskPing = new Task();
     private int targetUser = 0;
+    private int user = 0;
 
     ArrayList<Integer> myLike = new ArrayList<>();
     ArrayList<Integer> myPing = new ArrayList<>();
@@ -102,6 +103,8 @@ public class MyProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        user = targetUser > 0 ? targetUser : Integer.parseInt(userId);
+
 
         View v = inflater.inflate(R.layout.fragment_my_profile, container, false);
 
@@ -134,7 +137,7 @@ public class MyProfileFragment extends Fragment {
 
             for (int i = 0; i < userLinearNum; i++) {
                 String val = link_id[i];
-                if (val.contains(userId)) {
+                if (val.contains(Integer.toString(user))) {
                     userImg = imgUrl + profile[i];
                     userName = nickname[i];
                 }
@@ -148,13 +151,13 @@ public class MyProfileFragment extends Fragment {
 
             for(int i = 0 ; i < likeUserIdx.length; i++)
             {
-                if(likeUserIdx[i].equals(userId))
+                if(likeUserIdx[i].equals(Integer.toString(user)))
                     myLike.add(Integer.parseInt(likePingIdx[i]));
             }
 
             for(int i=0; i < ping_writer_idx.length; i++)
             {
-                if(ping_writer_idx[i].equals(userId))
+                if(ping_writer_idx[i].equals(Integer.toString(user)))
                 {
                     myPing.add(Integer.parseInt(ping_idx[i]));
                 }

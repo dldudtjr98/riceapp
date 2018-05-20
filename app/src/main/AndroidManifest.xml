@@ -88,6 +88,8 @@
             android:screenOrientation="portrait"
             android:theme="@style/Dialog" />
         <activity android:name=".sendMessage"></activity>
+        <activity android:name=".FeedBackDialog"
+            android:theme="@style/Dialog"></activity>
     </application>
 
 </manifest>

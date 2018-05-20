@@ -52,7 +52,15 @@ public class MainActivity extends AppCompatActivity {
                         navigation.setVisibility(View.VISIBLE);
                         return true;
                     case R.id.navigation_myProfile:
-                        transaction.replace(R.id.ViewPage, new MyProfileFragment()).commit();
+                        MyProfileFragment profile = new MyProfileFragment();
+                        if(navigation.getTag() != null) {
+                            String target = (navigation.getTag().toString());
+                            if (!target.equals(null))
+                                profile.setTargetUser(Integer.parseInt(target));
+                            else
+                                profile.setTargetUser(0);
+                        }
+                        transaction.replace(R.id.ViewPage, profile).commit();
                         navigation.setVisibility(View.VISIBLE);
                         return true;
                     case R.id.navigation_setting:
