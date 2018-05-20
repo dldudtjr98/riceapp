@@ -36,6 +36,19 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestOptions;
+import com.kakao.kakaolink.AppActionBuilder;
+import com.kakao.kakaolink.KakaoLink;
+import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
+import com.kakao.kakaolink.v2.KakaoLinkResponse;
+import com.kakao.kakaolink.v2.KakaoLinkService;
+import com.kakao.message.template.ContentObject;
+import com.kakao.message.template.LinkObject;
+import com.kakao.message.template.LocationTemplate;
+import com.kakao.message.template.SocialObject;
+import com.kakao.network.ErrorResult;
+import com.kakao.network.callback.ResponseCallback;
+import com.kakao.util.KakaoParameterException;
+import com.kakao.util.helper.log.Logger;
 import com.squareup.picasso.Picasso;
 
 import net.daum.mf.map.api.CameraUpdateFactory;
@@ -43,6 +56,7 @@ import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapPointBounds;
 import net.daum.mf.map.api.MapPolyline;
+import net.daum.mf.map.api.MapReverseGeoCoder;
 import net.daum.mf.map.api.MapView;
 
 import java.lang.reflect.Array;
@@ -71,6 +85,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
 
+    private KakaoLink kakaoLink;
+    private KakaoTalkLinkMessageBuilder kakaoTalkLinkMessageBuilder;
     private ReplyAdapter rAdapter;
     private String getLikeUserString;
     private String replyString;
@@ -99,6 +115,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public void setShowMap(boolean showMap) {
         isShowMap = showMap;
     }
+
+
 
     public interface OnLoadMoreListener{
         void onLoadMore();
@@ -288,7 +306,51 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             ((CardViewHolder) holder).oTextShare.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(context, "공유기능은 아직 지원하지 않습니다", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "공유기능은 아직 지원하지 않습니다", Toast.LENGTH_LONG).show();
+                    MapReverseGeoCoder reverseGeoCoder = null;
+                    try {
+                        String contentText;
+                        if(item.getStrContent() == null) {
+                            contentText = " ";
+                        } else{
+                            contentText =item.getStrContent();
+                        }
+
+
+                        LocationTemplate params = LocationTemplate.newBuilder("성남시 분당구 판교역로 235",
+                                ContentObject.newBuilder("여기는 고정텍스트 (UI필요)",
+                                        item.getStrThumbnailImage(),
+                                        LinkObject.newBuilder()
+                                                .setWebUrl("https://developers.kakao.com")
+                                                .setMobileWebUrl("https://developers.kakao.com")
+                                                .build())
+                                        .setDescrption(contentText).build())
+                                .setSocial(SocialObject.newBuilder().setLikeCount(Integer.parseInt(item.getStrPingLike()))
+                                        .setCommentCount(Integer.parseInt(item.getStrPingReply()))
+                                        .setSharedCount(333).build())
+                                .setAddressTitle("카카오 판교오피스")
+                                .build();
+
+                        KakaoLinkService.getInstance().sendDefault(context, params, new ResponseCallback<KakaoLinkResponse>() {
+                            @Override
+                            public void onFailure(ErrorResult errorResult) {
+                                Logger.e(errorResult.toString());
+                            }
+
+                            @Override
+                            public void onSuccess(KakaoLinkResponse result) {
+
+                            }
+
+
+
+                        });
+
+
+
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
             });
 
