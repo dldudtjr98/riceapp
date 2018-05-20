@@ -19,6 +19,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private Camera mCamera;
     float mDist = 0;
 
+    private Context context;
+    private Camera.Size previewSize;
+    public List<Camera.Size> listPreviewSizes;
+
 
     public CameraPreview(Context context, Camera camera) {
         super(context);
@@ -42,6 +46,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                     "Error setting camera preview: " + e.getMessage());
         }
     }
+
+
     public void refreshCamera(android.hardware.Camera camera) {
         if (mHolder.getSurface() == null) {
             // preview surface does not exist
@@ -67,10 +73,18 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
     }
 
+
+
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         // If your preview can change or rotate, take care of those events here.
         // Make sure to stop the preview before resizing or reformatting it.
+
         refreshCamera(mCamera);
+        // 카메라 화면을 회전 할 때의 처리
+        if (holder.getSurface() == null){
+            // 프리뷰가 존재하지 않을때
+            return;
+        }
     }
 
     public void setCamera(android.hardware.Camera camera) {
@@ -82,9 +96,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     public void surfaceDestroyed(SurfaceHolder holder) {
         // TODO Auto-generated method stub
         //mCamera.stopPreview();
-       // mCamera.release();
-       // mCamera = null;
-
+        //mCamera.release();
+        //mCamera = null;
+        Log.e("TAG","SURFACE DESTROYED");
     }
 
     @Override

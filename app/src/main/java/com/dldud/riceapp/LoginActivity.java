@@ -69,7 +69,6 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getKeyHash(getBaseContext());
         ImageView fakeKakao;
 
         setContentView(R.layout.activity_login);
@@ -95,33 +94,6 @@ public class LoginActivity extends BaseActivity {
 
     }
 
-    public static String getKeyHash(final Context context) {
-        PackageInfo packageInfo = getPackageInfo(context, PackageManager.GET_SIGNATURES);
-        if (packageInfo == null)
-            return null;
-
-        for (Signature signature : packageInfo.signatures) {
-            try {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                return Base64.encodeToString(md.digest(), Base64.NO_WRAP);
-            } catch (NoSuchAlgorithmException e) {
-                Log.w("KEYHASH", "Unable to get MessageDigest. signature=" + signature, e);
-            }
-        }
-        return null;
-    }
-/*
-    View.OnClickListener skipListener = new View.OnClickListener(){
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
-    };
-
-*/
     View.OnClickListener loginListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {

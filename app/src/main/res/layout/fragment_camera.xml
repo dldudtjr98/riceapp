@@ -32,6 +32,13 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!--
+    <com.dldud.riceapp.CameraPreview
+        android:id="@+id/camera_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+-->
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/linearLayout"

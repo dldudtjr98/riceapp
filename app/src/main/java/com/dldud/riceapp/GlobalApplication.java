@@ -40,7 +40,7 @@ public class GlobalApplication extends Application {
                 //로그인 시에 인증타입 지정
                 @Override
                 public AuthType[] getAuthTypes() {
-                    return new AuthType[] {AuthType.KAKAO_ACCOUNT};
+                    return new AuthType[] {AuthType.KAKAO_LOGIN_ALL};
                 }
                 // Auth Type
                 // KAKAO_TALK  : 카카오톡 로그인 타입
@@ -91,6 +91,7 @@ public class GlobalApplication extends Application {
         KakaoSDK.init(new KakaoSDKAdapter());
     }
 
+
     public static GlobalApplication getGlobalApplicationContext() {
         if(instance == null)
             throw new IllegalStateException("this application does not inherit com.kakao.GlobalApplication");
@@ -105,13 +106,15 @@ public class GlobalApplication extends Application {
     public static void setCurrentActivity(Activity currentActivity) {
         GlobalApplication.currentActivity = currentActivity;
     }
+
+
     /**
      * 애플리케이션 종료시 singleton 어플리케이션 객체 초기화한다.
      */
+
     @Override
     public void onTerminate() {
         super.onTerminate();
         instance = null;
     }
-
 }
